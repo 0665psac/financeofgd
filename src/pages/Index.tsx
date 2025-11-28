@@ -1,11 +1,12 @@
 import { useState, useEffect, FormEvent } from "react";
-import { Search, Gift, TreePine } from "lucide-react";
+import { Search, Gift, TreePine, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import Snowflakes from "@/components/Snowflakes";
 import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
-import { searchStudent, SearchResult } from "@/lib/searchService";
+import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import {
   getSearchHistory,
   addToSearchHistory,
@@ -18,6 +19,7 @@ const Index = () => {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [searchedId, setSearchedId] = useState("");
   const [history, setHistory] = useState<string[]>([]);
+  const { toast } = useToast();
 
   useEffect(() => {
     setHistory(getSearchHistory());
@@ -30,18 +32,24 @@ const Index = () => {
     setIsLoading(true);
     setResult(null);
 
-    // Simulate network delay for better UX
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const searchResult = await searchStudent(searchId);
+      setResult(searchResult);
+      setSearchedId(searchId);
 
-    const searchResult = searchStudent(searchId);
-    setResult(searchResult);
-    setSearchedId(searchId);
-
-    // Save to history
-    addToSearchHistory(searchId);
-    setHistory(getSearchHistory());
-
-    setIsLoading(false);
+      // Save to history
+      addToSearchHistory(searchId);
+      setHistory(getSearchHistory());
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "เกิดข้อผิดพลาด",
+        description: "ไม่สามารถเชื่อมต่อกับระบบได้ กรุณาลองใหม่อีกครั้ง",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -57,6 +65,14 @@ const Index = () => {
   const handleClearHistory = () => {
     clearSearchHistory();
     setHistory([]);
+  };
+
+  const handleRefreshData = () => {
+    clearCache();
+    toast({
+      title: "รีเฟรชข้อมูลแล้ว",
+      description: "ระบบจะดึงข้อมูลใหม่ในการค้นหาครั้งถัดไป",
+    });
   };
 
   return (
@@ -84,7 +100,7 @@ const Index = () => {
         </header>
 
         {/* Search Form */}
-        <form onSubmit={handleSubmit} className="mb-6">
+        <form onSubmit={handleSubmit} className="mb-4">
           <div className="relative">
             <Input
               type="text"
@@ -104,6 +120,19 @@ const Index = () => {
             </Button>
           </div>
         </form>
+
+        {/* Refresh Button */}
+        <div className="flex justify-end mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleRefreshData}
+            className="text-xs text-muted-foreground hover:text-foreground"
+          >
+            <RefreshCw className="w-3 h-3 mr-1" />
+            รีเฟรชข้อมูล
+          </Button>
+        </div>
 
         {/* Search History */}
         <div className="mb-6">

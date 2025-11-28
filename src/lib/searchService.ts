@@ -1,4 +1,4 @@
-import { mockSheetData, isNovember68OrNewer, getMonthSortOrder } from "./mockData";
+import { fetchAllSheetsData, isNovember68OrNewer, SheetData } from "./googleSheets";
 
 export interface MonthDetail {
   monthName: string;
@@ -14,62 +14,94 @@ export interface SearchResult {
   monthDetails?: MonthDetail[];
 }
 
-export function searchStudent(studentId: string): SearchResult {
-  const trimmedId = studentId.trim();
+// Cache for sheet data
+let cachedData: SheetData[] | null = null;
+let cacheTimestamp: number = 0;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getSheetData(): Promise<SheetData[]> {
+  const now = Date.now();
   
-  let studentName: string | undefined;
-  const monthDetails: MonthDetail[] = [];
-  let totalAmount = 0;
-  let foundInAnySheet = false;
-
-  // Sort sheets by date (newest first)
-  const sortedSheets = [...mockSheetData].sort(
-    (a, b) => getMonthSortOrder(b.sheetName) - getMonthSortOrder(a.sheetName)
-  );
-
-  for (const sheet of sortedSheets) {
-    const record = sheet.records.find(
-      (r) => r.studentId.toString() === trimmedId
-    );
-
-    if (record) {
-      foundInAnySheet = true;
-      if (!studentName) {
-        studentName = record.studentName;
-      }
-
-      // Determine price per week based on sheet date
-      const pricePerWeek = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
-
-      // Find unpaid weeks
-      const unpaidWeeks: number[] = [];
-      if (!record.weeks.week1) unpaidWeeks.push(1);
-      if (!record.weeks.week2) unpaidWeeks.push(2);
-      if (!record.weeks.week3) unpaidWeeks.push(3);
-      if (!record.weeks.week4) unpaidWeeks.push(4);
-
-      if (unpaidWeeks.length > 0) {
-        const monthTotal = unpaidWeeks.length * pricePerWeek;
-        totalAmount += monthTotal;
-
-        monthDetails.push({
-          monthName: sheet.sheetName,
-          pricePerWeek,
-          unpaidWeeks,
-          totalAmount: monthTotal,
-        });
-      }
-    }
+  // Return cached data if still valid
+  if (cachedData && (now - cacheTimestamp) < CACHE_DURATION) {
+    return cachedData;
   }
+  
+  // Fetch fresh data
+  cachedData = await fetchAllSheetsData();
+  cacheTimestamp = now;
+  
+  return cachedData;
+}
 
-  if (!foundInAnySheet) {
+export async function searchStudent(studentId: string): Promise<SearchResult> {
+  const trimmedId = studentId.trim().replace(/\D/g, ""); // Remove non-digits
+  
+  if (!trimmedId) {
     return { found: false };
   }
+  
+  try {
+    const allSheets = await getSheetData();
+    
+    let studentName: string | undefined;
+    const monthDetails: MonthDetail[] = [];
+    let totalAmount = 0;
+    let foundInAnySheet = false;
 
-  return {
-    found: true,
-    studentName,
-    totalAmount,
-    monthDetails,
-  };
+    for (const sheet of allSheets) {
+      const record = sheet.records.find(
+        (r) => r.studentId === trimmedId
+      );
+
+      if (record) {
+        foundInAnySheet = true;
+        if (!studentName) {
+          studentName = record.studentName;
+        }
+
+        // Determine price per week based on sheet date
+        const pricePerWeek = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
+
+        // Find unpaid weeks
+        const unpaidWeeks: number[] = [];
+        if (!record.week1) unpaidWeeks.push(1);
+        if (!record.week2) unpaidWeeks.push(2);
+        if (!record.week3) unpaidWeeks.push(3);
+        if (!record.week4) unpaidWeeks.push(4);
+
+        if (unpaidWeeks.length > 0) {
+          const monthTotal = unpaidWeeks.length * pricePerWeek;
+          totalAmount += monthTotal;
+
+          monthDetails.push({
+            monthName: sheet.sheetName,
+            pricePerWeek,
+            unpaidWeeks,
+            totalAmount: monthTotal,
+          });
+        }
+      }
+    }
+
+    if (!foundInAnySheet) {
+      return { found: false };
+    }
+
+    return {
+      found: true,
+      studentName,
+      totalAmount,
+      monthDetails,
+    };
+  } catch (error) {
+    console.error("Error searching student:", error);
+    throw error;
+  }
+}
+
+// Force refresh cache
+export function clearCache(): void {
+  cachedData = null;
+  cacheTimestamp = 0;
 }
