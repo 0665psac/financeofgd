@@ -122,7 +122,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                           : "bg-secondary/20 text-secondary"
                       }`}
                     >
-                      W{week} {isUnpaid ? "ค้าง" : "✓"}
+                      W{week} {isUnpaid ? "❌️" : "✅️"}
                     </span>
                   );
                 })}
