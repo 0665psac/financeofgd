@@ -92,7 +92,7 @@ const Index = () => {
             ระบบตรวจสอบยอดค้างชำระ
           </h1>
           <p className="text-sm text-muted-foreground">
-            ค่าส่วนกลางนิสิต สาขากราฟิกดีไซน์
+            ค่าสาขาเด็กกราฟฟิกและผลิตภัณฑ์
           </p>
           <div className="mt-2 inline-block px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">
             🎄 Merry Christmas 🎄
@@ -158,8 +158,7 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Finance of Graphic Design © 2024</p>
-          <p className="mt-1">🎅 สุขสันต์วันคริสต์มาส 🎅</p>
+          <p>Finance of Graphic Design © 2025</p>
         </footer>
       </div>
     </div>
