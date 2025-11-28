@@ -107,9 +107,18 @@ const Index = () => {
               placeholder="กรอกรหัสนิสิต เช่น 6501234567"
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
-              className="pr-12 h-12 text-base bg-card border-border focus:border-primary focus:ring-primary"
+              className="pr-24 h-12 text-base bg-card border-border focus:border-primary focus:ring-primary"
               disabled={isLoading}
             />
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={handleRefreshData}
+              className="absolute right-12 top-1 h-10 w-10 text-muted-foreground hover:text-foreground"
+            >
+              <RefreshCw className="w-5 h-5" />
+            </Button>
             <Button
               type="submit"
               size="icon"
@@ -120,19 +129,6 @@ const Index = () => {
             </Button>
           </div>
         </form>
-
-        {/* Refresh Button */}
-        <div className="flex justify-end mb-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleRefreshData}
-            className="text-xs text-muted-foreground hover:text-foreground"
-          >
-            <RefreshCw className="w-3 h-3 mr-1" />
-            รีเฟรชข้อมูล
-          </Button>
-        </div>
 
         {/* Search History */}
         <div className="mb-6">
