@@ -1,5 +1,6 @@
-import { CheckCircle2, AlertCircle, XCircle } from "lucide-react";
+import { CheckCircle2, AlertCircle, XCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader } from "./ui/card";
+import { Button } from "./ui/button";
 
 interface MonthDetail {
   monthName: string;
@@ -88,6 +89,13 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           <p className="text-4xl font-bold text-primary pulse-glow inline-block px-4 py-2 rounded-lg">
             {result.totalAmount?.toLocaleString()} บาท
           </p>
+          <Button
+            className="mt-4 w-full"
+            onClick={() => window.open("https://forms.gle/FepKQ6mFyFJzg2GGA", "_blank")}
+          >
+            <ExternalLink className="w-4 h-4 mr-2" />
+            ส่งสลิป
+          </Button>
         </div>
 
         {/* Monthly Details */}
