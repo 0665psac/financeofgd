@@ -1,8 +1,24 @@
-import { CheckCircle2, AlertCircle, XCircle, ExternalLink } from "lucide-react";
+import { Gift, AlertCircle, XCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import confetti from "canvas-confetti";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+
+const christmasGreetings = [
+  "ขอให้คริสต์มาสนี้เต็มไปด้วยความสุขและเสียงหัวเราะ! 🎅✨",
+  "ปีใหม่นี้ขอให้เกรดปังๆ การเงินเฮงๆ ตลอดปี! 🎁📚",
+  "Merry Christmas! ขอให้พบเจอแต่เรื่องราวดีๆ และคนใจดีนะ 🎄❤️",
+  "ไม่มีหนี้คือลาภอันประเสริฐ! สุขสันต์วันคริสต์มาสครับ ❄️💰",
+  "Ho Ho Ho! ขอให้ซานต้ามอบของขวัญชิ้นใหญ่ให้คุณนะ 🦌🎁",
+  "ขอให้ความสุขโอบล้อมรอบตัวคุณเหมือนไฟประดับต้นคริสต์มาส! ✨🎄",
+];
+
 interface MonthDetail {
   monthName: string;
   pricePerWeek: number;
@@ -75,27 +91,62 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
     }
   }, [result.found, result.totalAmount]);
 
+  const [isGiftDialogOpen, setIsGiftDialogOpen] = useState(false);
+  const [randomGreeting, setRandomGreeting] = useState("");
+
+  const handleGiftClick = () => {
+    const greeting = christmasGreetings[Math.floor(Math.random() * christmasGreetings.length)];
+    setRandomGreeting(greeting);
+    setIsGiftDialogOpen(true);
+  };
+
   if (result.totalAmount === 0) {
     return (
-      <Card className="animate-scale-in border-secondary/30 bg-secondary/5">
-        <CardHeader className="pb-2">
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">ผลการตรวจสอบของ</p>
-            <p className="text-lg font-semibold text-foreground">{result.studentName}</p>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-col items-center text-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center">
-              <CheckCircle2 className="w-8 h-8 text-secondary" />
+      <>
+        <Card className="animate-scale-in border-secondary/30 bg-secondary/5">
+          <CardHeader className="pb-2">
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">ผลการตรวจสอบของ</p>
+              <p className="text-lg font-semibold text-foreground">{result.studentName}</p>
             </div>
-            <div>
-              <p className="font-semibold text-secondary mb-1">ไม่มียอดค้างชำระ</p>
-              <p className="text-3xl font-bold text-secondary">0 บาท</p>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col items-center text-center gap-3">
+              <button
+                onClick={handleGiftClick}
+                className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors animate-bounce"
+              >
+                <Gift className="w-8 h-8 text-primary" />
+              </button>
+              <p className="text-xs text-muted-foreground">คลิกเพื่อเปิดของขวัญ!</p>
+              <div>
+                <p className="font-semibold text-secondary mb-1">ไม่มียอดค้างชำระ</p>
+                <p className="text-3xl font-bold text-secondary">0 บาท</p>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+
+        <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
+          <DialogContent className="sm:max-w-md text-center">
+            <DialogHeader>
+              <DialogTitle className="text-center text-2xl">🎄 ของขวัญจากเรา 🎄</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-6">
+              <div className="relative">
+                <Gift className="w-24 h-24 text-primary animate-pulse" />
+                <span className="absolute -top-2 -right-2 text-3xl animate-bounce">✨</span>
+              </div>
+              <p className="text-lg font-medium text-foreground leading-relaxed px-4">
+                {randomGreeting}
+              </p>
+            </div>
+            <Button onClick={() => setIsGiftDialogOpen(false)} className="w-full">
+              ปิด
+            </Button>
+          </DialogContent>
+        </Dialog>
+      </>
     );
   }
 
