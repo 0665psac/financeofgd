@@ -57,14 +57,14 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           angle: 60,
           spread: 55,
           origin: { x: 0 },
-          colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+          colors: ['#ff0000', '#00ff00', '#ffff00']
         });
         confetti({
           particleCount: 3,
           angle: 120,
           spread: 55,
           origin: { x: 1 },
-          colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+          colors: ['#ff0000', '#00ff00', '#ffff00']
         });
 
         if (Date.now() < end) {
