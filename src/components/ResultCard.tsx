@@ -114,7 +114,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
             <div className="flex flex-col items-center text-center gap-3">
               <button
                 onClick={handleGiftClick}
-                className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors animate-bounce"
+                className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors animate-pulse"
               >
                 <Gift className="w-8 h-8 text-primary" />
               </button>
@@ -128,9 +128,9 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
         </Card>
 
         <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
-          <DialogContent className="sm:max-w-md text-center">
+          <DialogContent className="sm:max-w-md text-center rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl">🎄 ของขวัญจากเรา 🎄</DialogTitle>
+              <DialogTitle className="text-center text-2xl">🎁 Gift box 🎁</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="relative">
@@ -141,7 +141,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 {randomGreeting}
               </p>
             </div>
-            <Button onClick={() => setIsGiftDialogOpen(false)} className="w-full">
+            <Button onClick={() => setIsGiftDialogOpen(false)} className="w-full bg-green-600 hover:bg-green-700 text-white">
               ปิด
             </Button>
           </DialogContent>
