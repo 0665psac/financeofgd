@@ -19,6 +19,7 @@ const Index = () => {
   const [result, setResult] = useState<SearchResult | null>(null);
   const [searchedId, setSearchedId] = useState("");
   const [history, setHistory] = useState<string[]>([]);
+  const [isInputFocused, setIsInputFocused] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -104,9 +105,11 @@ const Index = () => {
           <div className="relative">
             <Input
               type="text"
-              placeholder="กรอกรหัสนิสิต เช่น 6501234567"
+              placeholder="กรอกรหัสนิสิต"
               value={studentId}
               onChange={(e) => setStudentId(e.target.value)}
+              onFocus={() => setIsInputFocused(true)}
+              onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
               className="pr-24 h-12 text-base bg-card border-border focus:border-primary focus:ring-primary"
               disabled={isLoading}
             />
@@ -131,13 +134,15 @@ const Index = () => {
         </form>
 
         {/* Search History */}
-        <div className="mb-6">
-          <SearchHistory
-            history={history}
-            onSelect={handleHistorySelect}
-            onClear={handleClearHistory}
-          />
-        </div>
+        {isInputFocused && history.length > 0 && (
+          <div className="mb-6">
+            <SearchHistory
+              history={history}
+              onSelect={handleHistorySelect}
+              onClear={handleClearHistory}
+            />
+          </div>
+        )}
 
         {/* Loading State */}
         {isLoading && (
