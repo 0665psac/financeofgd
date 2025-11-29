@@ -1,7 +1,8 @@
 import { CheckCircle2, AlertCircle, XCircle, ExternalLink } from "lucide-react";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
-
+import { useEffect } from "react";
+import confetti from "canvas-confetti";
 interface MonthDetail {
   monthName: string;
   pricePerWeek: number;
@@ -45,6 +46,35 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
   }
 
   // Case B: No outstanding balance
+  useEffect(() => {
+    if (result.found && result.totalAmount === 0) {
+      const duration = 3000;
+      const end = Date.now() + duration;
+
+      const frame = () => {
+        confetti({
+          particleCount: 3,
+          angle: 60,
+          spread: 55,
+          origin: { x: 0 },
+          colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+        });
+        confetti({
+          particleCount: 3,
+          angle: 120,
+          spread: 55,
+          origin: { x: 1 },
+          colors: ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff']
+        });
+
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      };
+      frame();
+    }
+  }, [result.found, result.totalAmount]);
+
   if (result.totalAmount === 0) {
     return (
       <Card className="animate-scale-in border-secondary/30 bg-secondary/5">
@@ -111,7 +141,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 <div>
                   <p className="font-medium text-foreground">{month.monthName}</p>
                   <p className="text-xs text-muted-foreground">
-                    ราคา {month.pricePerWeek} บาท/สัปดาห์
+                    ต้องชำระ {month.pricePerWeek} บาท/สัปดาห์
                   </p>
                 </div>
                 <p className="font-semibold text-primary">
