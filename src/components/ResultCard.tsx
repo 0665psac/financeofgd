@@ -130,7 +130,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
         <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
           <DialogContent className="sm:max-w-md text-center rounded-2xl">
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl">🎁 Gift box 🎁</DialogTitle>
+              <DialogTitle className="text-center text-2xl">Gift box</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col items-center gap-4 py-6">
               <div className="relative">
