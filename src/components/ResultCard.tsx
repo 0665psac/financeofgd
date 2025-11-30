@@ -129,21 +129,26 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
         </Card>
 
         <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
-          <DialogContent className="sm:max-w-md text-center rounded-2xl">
+          <DialogContent className="sm:max-w-md text-center rounded-3xl bg-white border-0 shadow-xl">
             <DialogHeader>
-              <DialogTitle className="text-center text-2xl">Gift box</DialogTitle>
+              <DialogTitle className="text-center text-3xl text-green-600 font-serif italic">
+                Gift box
+              </DialogTitle>
             </DialogHeader>
-            <div className="flex flex-col items-center gap-4 py-6">
+            <div className="flex flex-col items-center gap-4 py-4">
               <img 
                 src={GiftBoxGif} 
                 alt="Gift Box" 
-                className="w-32 h-32 object-contain"
+                className="w-36 h-36 object-contain"
               />
-              <p className="text-lg font-medium text-foreground leading-relaxed px-4 gift-reveal">
+              <p className="text-lg font-medium text-amber-500 leading-relaxed px-4 gift-reveal">
                 {randomGreeting}
               </p>
             </div>
-            <Button onClick={() => setIsGiftDialogOpen(false)} className="w-full bg-green-600 hover:bg-green-700 text-white">
+            <Button 
+              onClick={() => setIsGiftDialogOpen(false)} 
+              className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full py-6 text-lg font-medium"
+            >
               ปิด
             </Button>
           </DialogContent>
