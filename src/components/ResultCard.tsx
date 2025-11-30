@@ -115,9 +115,9 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
             <div className="flex flex-col items-center text-center gap-3">
               <button
                 onClick={handleGiftClick}
-                className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center cursor-pointer hover:bg-primary/30 transition-colors animate-pulse"
+                className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center cursor-pointer hover:bg-green-500/30 transition-colors animate-pulse"
               >
-                <Gift className="w-8 h-8 text-primary" />
+                <Gift className="w-8 h-8 text-green-500" />
               </button>
               <p className="text-xs text-muted-foreground">คลิกเพื่อเปิดของขวัญ!</p>
               <div>
