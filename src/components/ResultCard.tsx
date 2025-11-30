@@ -141,7 +141,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 alt="Gift Box" 
                 className="w-36 h-36 object-contain"
               />
-              <p className="text-lg font-medium text-amber-500 leading-relaxed px-4 gift-reveal">
+              <p className="text-lg font-medium text-green-600 leading-relaxed px-4 gift-reveal">
                 {randomGreeting}
               </p>
             </div>
