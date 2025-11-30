@@ -1,4 +1,5 @@
 import { Gift, AlertCircle, XCircle, ExternalLink } from "lucide-react";
+import GiftBoxGif from "@/assets/GiftBox.gif";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
@@ -133,25 +134,11 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
               <DialogTitle className="text-center text-2xl">Gift box</DialogTitle>
             </DialogHeader>
             <div className="flex flex-col items-center gap-4 py-6">
-              <div className="relative w-32 h-32">
-                {/* Gift box base */}
-                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-16 bg-primary rounded-lg shadow-lg">
-                  <div className="absolute top-1/2 left-0 right-0 h-3 bg-accent -translate-y-1/2" />
-                  <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-accent -translate-x-1/2" />
-                </div>
-                {/* Gift box lid */}
-                <div className="absolute bottom-14 left-1/2 -translate-x-1/2 w-28 h-8 bg-primary rounded-t-lg shadow-md gift-lid-open origin-bottom">
-                  <div className="absolute top-1/2 left-0 right-0 h-3 bg-accent -translate-y-1/2" />
-                  <div className="absolute top-0 bottom-0 left-1/2 w-3 bg-accent -translate-x-1/2">
-                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-6 border-4 border-accent rounded-full bg-transparent" />
-                  </div>
-                </div>
-                {/* Sparkles */}
-                <span className="absolute top-2 left-2 text-2xl sparkle">✨</span>
-                <span className="absolute top-0 right-4 text-xl sparkle sparkle-delay-1">⭐</span>
-                <span className="absolute top-4 right-0 text-2xl sparkle sparkle-delay-2">✨</span>
-                <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-xl sparkle sparkle-delay-3">🌟</span>
-              </div>
+              <img 
+                src={GiftBoxGif} 
+                alt="Gift Box" 
+                className="w-32 h-32 object-contain"
+              />
               <p className="text-lg font-medium text-foreground leading-relaxed px-4 gift-reveal">
                 {randomGreeting}
               </p>
