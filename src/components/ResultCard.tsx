@@ -145,12 +145,6 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 {randomGreeting}
               </p>
             </div>
-            <Button 
-              onClick={() => setIsGiftDialogOpen(false)} 
-              className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full py-6 text-lg font-medium"
-            >
-              ปิด
-            </Button>
           </DialogContent>
         </Dialog>
       </>
