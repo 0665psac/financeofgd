@@ -1,11 +1,11 @@
 // Google Apps Script Web App URL for incrementing search counter
 // User needs to deploy a Google Apps Script and paste the URL here
-const APPS_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWHC7GLP_KRIO54uXbmYEPpA31dC4O-JAyfQVCv2vi__5_fyRTTZZIfMC_RT5wj7SG/exec";
 
 export async function incrementSearchCounter(studentId: string): Promise<void> {
   const trimmedId = studentId.trim().replace(/\D/g, "");
   
-  if (!trimmedId || APPS_SCRIPT_URL === "https://script.google.com/macros/library/d/1yYL-QX7RBY0DShl6wi9wRrXIeJE_KQt2Xnn3jEgbm9VKEWREh6i5Ym9w/1") {
+  if (!trimmedId || APPS_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
     console.log("Search counter not configured or invalid ID");
     return;
   }
