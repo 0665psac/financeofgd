@@ -5,7 +5,7 @@ const APPS_SCRIPT_URL = "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL";
 export async function incrementSearchCounter(studentId: string): Promise<void> {
   const trimmedId = studentId.trim().replace(/\D/g, "");
   
-  if (!trimmedId || APPS_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL") {
+  if (!trimmedId || APPS_SCRIPT_URL === "AKfycbxWHC7GLP_KRIO54uXbmYEPpA31dC4O-JAyfQVCv2vi__5_fyRTTZZIfMC_RT5wj7SG") {
     console.log("Search counter not configured or invalid ID");
     return;
   }
