@@ -157,3 +157,29 @@ export async function fetchAllSheetsData(): Promise<SheetData[]> {
   
   return allData;
 }
+
+// Fetch total amount from "สรุปยอดเงิน" sheet cell B13
+export async function fetchTotalAmount(): Promise<number | null> {
+  const sheetName = encodeURIComponent("'สรุปยอดเงิน'!B13");
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}?key=${API_KEY}`;
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`Failed to fetch total amount: ${response.statusText}`);
+      return null;
+    }
+    
+    const data = await response.json();
+    const value = data.values?.[0]?.[0];
+    
+    if (!value) return null;
+    
+    // Parse number (handle comma-separated format)
+    const numValue = parseFloat(value.toString().replace(/,/g, ""));
+    return isNaN(numValue) ? null : numValue;
+  } catch (error) {
+    console.error("Error fetching total amount:", error);
+    return null;
+  }
+}

@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
-import { Search, Gift, Sparkles, RefreshCw } from "lucide-react";
+import { Search, Gift, Sparkles, RefreshCw, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { incrementSearchCounter } from "@/lib/searchCounter";
+import { fetchTotalAmount } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
@@ -21,10 +22,21 @@ const Index = () => {
   const [searchedId, setSearchedId] = useState("");
   const [history, setHistory] = useState<string[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
+  const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const [isTotalLoading, setIsTotalLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     setHistory(getSearchHistory());
+    
+    // Fetch total amount on load
+    const loadTotalAmount = async () => {
+      setIsTotalLoading(true);
+      const amount = await fetchTotalAmount();
+      setTotalAmount(amount);
+      setIsTotalLoading(false);
+    };
+    loadTotalAmount();
   }, []);
 
   const handleSearch = async (id?: string) => {
@@ -104,6 +116,27 @@ const Index = () => {
           </div>
         </header>
 
+        {/* Total Amount Display - Before Search */}
+        {!result && (
+          <div className="mb-6 p-4 bg-card/80 backdrop-blur-sm rounded-xl border border-border shadow-sm">
+            <div className="flex items-center justify-center gap-2">
+              <Wallet className="w-5 h-5 text-primary" />
+              <span className="text-sm text-muted-foreground">ยอดเงินรวมทั้งหมด</span>
+            </div>
+            <div className="text-center mt-2">
+              {isTotalLoading ? (
+                <div className="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              ) : totalAmount !== null ? (
+                <span className="text-2xl font-bold text-primary">
+                  {totalAmount.toLocaleString("th-TH")} บาท
+                </span>
+              ) : (
+                <span className="text-sm text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Search Form */}
         <form onSubmit={handleSubmit} className="mb-4">
           <div className="relative">
@@ -158,7 +191,28 @@ const Index = () => {
 
         {/* Results */}
         {result && !isLoading && (
-          <ResultCard result={result} studentId={searchedId} />
+          <>
+            <ResultCard result={result} studentId={searchedId} />
+            
+            {/* Total Amount Display - After Search */}
+            <div className="mt-4 p-4 bg-card/80 backdrop-blur-sm rounded-xl border border-border shadow-sm">
+              <div className="flex items-center justify-center gap-2">
+                <Wallet className="w-5 h-5 text-primary" />
+                <span className="text-sm text-muted-foreground">ยอดเงินรวมทั้งหมด</span>
+              </div>
+              <div className="text-center mt-2">
+                {isTotalLoading ? (
+                  <div className="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                ) : totalAmount !== null ? (
+                  <span className="text-2xl font-bold text-primary">
+                    {totalAmount.toLocaleString("th-TH")} บาท
+                  </span>
+                ) : (
+                  <span className="text-sm text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
+                )}
+              </div>
+            </div>
+          </>
         )}
 
         {/* Footer */}
