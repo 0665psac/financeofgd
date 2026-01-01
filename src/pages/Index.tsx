@@ -191,11 +191,6 @@ const Index = () => {
         {result && !isLoading && (
           <ResultCard result={result} studentId={searchedId} />
         )}
-
-        {/* Footer */}
-        <footer className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Finance of Graphic Design © 2026</p>
-        </footer>
       </div>
     </div>
   );
