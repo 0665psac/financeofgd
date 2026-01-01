@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
-import { Search, Gift, TreePine, RefreshCw } from "lucide-react";
+import { Search, Gift, Sparkles, RefreshCw } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -89,9 +89,9 @@ const Index = () => {
         {/* Header */}
         <header className="text-center mb-8">
           <div className="flex justify-center items-center gap-2 mb-3">
-            <TreePine className="w-8 h-8 text-secondary" />
+            <Sparkles className="w-8 h-8 text-secondary" />
             <Gift className="w-6 h-6 text-primary float-animation" />
-            <TreePine className="w-8 h-8 text-secondary" />
+            <Sparkles className="w-8 h-8 text-secondary" />
           </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
             ระบบตรวจสอบยอดค้างชำระ
@@ -100,7 +100,7 @@ const Index = () => {
             ค่าสาขาเด็กกราฟฟิกและผลิตภัณฑ์
           </p>
           <div className="mt-2 inline-block px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">
-            🎄 Merry Christmas 🎄
+            🎉 Happy New Year 🎉
           </div>
         </header>
 
@@ -163,7 +163,7 @@ const Index = () => {
 
         {/* Footer */}
         <footer className="mt-8 text-center text-xs text-muted-foreground">
-          <p>Finance of Graphic Design © 2025</p>
+          <p>Finance of Graphic Design © 2026</p>
         </footer>
       </div>
     </div>
