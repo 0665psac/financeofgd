@@ -84,8 +84,17 @@ const Index = () => {
     setHistory([]);
   };
 
-  const handleRefreshData = () => {
+  const handleRefreshData = async () => {
     clearCache();
+    setIsTotalLoading(true);
+    try {
+      const amount = await fetchTotalAmount();
+      setTotalAmount(amount);
+    } catch (error) {
+      console.error("Error refreshing total amount:", error);
+    } finally {
+      setIsTotalLoading(false);
+    }
     toast({
       title: "รีเฟรชข้อมูลแล้ว",
       description: "ระบบจะดึงข้อมูลใหม่ในการค้นหาครั้งถัดไป",
