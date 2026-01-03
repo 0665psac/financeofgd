@@ -134,7 +134,7 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-snow dark:bg-[hsl(0,0%,5%)] relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-snow dark:bg-background relative overflow-hidden">
       <Snowflakes />
 
       {/* Dark Mode Toggle */}
