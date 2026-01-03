@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
-import { Search, RefreshCw, Wallet } from "lucide-react";
+import { Search, RefreshCw, Wallet, Moon, Sun } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -101,9 +101,49 @@ const Index = () => {
     });
   };
 
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return document.documentElement.classList.contains('dark');
+    }
+    return false;
+  });
+
+  const toggleDarkMode = () => {
+    const newMode = !isDarkMode;
+    setIsDarkMode(newMode);
+    if (newMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  };
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark');
+      setIsDarkMode(true);
+    }
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-snow relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-snow dark:bg-background relative overflow-hidden">
       <Snowflakes />
+
+      {/* Dark Mode Toggle */}
+      <button
+        onClick={toggleDarkMode}
+        className="fixed bottom-4 left-4 z-50 p-3 rounded-full bg-card border border-border shadow-lg hover:shadow-xl transition-all duration-300"
+        aria-label="Toggle dark mode"
+      >
+        {isDarkMode ? (
+          <Sun className="w-5 h-5 text-accent" />
+        ) : (
+          <Moon className="w-5 h-5 text-muted-foreground" />
+        )}
+      </button>
 
       {/* Main Content */}
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
