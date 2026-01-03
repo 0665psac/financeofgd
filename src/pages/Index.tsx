@@ -122,9 +122,14 @@ const Index = () => {
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') {
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
       document.documentElement.classList.add('dark');
       setIsDarkMode(true);
+    } else if (savedTheme === 'light') {
+      document.documentElement.classList.remove('dark');
+      setIsDarkMode(false);
     }
   }, []);
 
@@ -149,13 +154,13 @@ const Index = () => {
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
+          <h1 className="text-2xl font-bold text-foreground dark:text-white mb-2">
             ระบบตรวจสอบยอดค้างชำระ
           </h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground dark:text-gray-400">
             ค่าสาขาเด็กกราฟฟิกและผลิตภัณฑ์
           </p>
-          <div className="mt-2 inline-block px-3 py-1 bg-primary/10 text-primary text-xs rounded-full">
+          <div className="mt-2 inline-block px-3 py-1 bg-primary/10 dark:bg-primary/20 text-primary text-xs rounded-full">
             🎉 Happy New Year 🎉
           </div>
         </header>
