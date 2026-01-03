@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
-import { Search, Gift, Sparkles, RefreshCw, Wallet } from "lucide-react";
+import { Search, RefreshCw, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -100,11 +100,6 @@ const Index = () => {
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-8">
-          <div className="flex justify-center items-center gap-2 mb-3">
-            <Sparkles className="w-8 h-8 text-secondary" />
-            <Gift className="w-6 h-6 text-primary float-animation" />
-            <Sparkles className="w-8 h-8 text-secondary" />
-          </div>
           <h1 className="text-2xl font-bold text-foreground mb-2">
             ระบบตรวจสอบยอดค้างชำระ
           </h1>
@@ -119,14 +114,14 @@ const Index = () => {
         {/* Total Amount Display */}
         <div className="mb-6 p-4 bg-card/80 backdrop-blur-sm rounded-xl border border-border shadow-sm">
           <div className="flex items-center justify-center gap-2">
-            <Wallet className="w-5 h-5 text-primary" />
+            <Wallet className="w-5 h-5 text-green-500" />
             <span className="text-sm text-muted-foreground">ยอดเงินรวมทั้งหมด</span>
           </div>
           <div className="text-center mt-2">
             {isTotalLoading ? (
-              <div className="inline-block w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <div className="inline-block w-5 h-5 border-2 border-green-200 border-t-green-500 rounded-full animate-spin" />
             ) : totalAmount !== null ? (
-              <span className="text-2xl font-bold text-primary">
+              <span className="text-2xl font-bold text-green-500">
                 {totalAmount.toLocaleString("th-TH")} บาท
               </span>
             ) : (
