@@ -158,10 +158,10 @@ export async function fetchAllSheetsData(): Promise<SheetData[]> {
   return allData;
 }
 
-// Fetch total amount from "สรุปยอดเงิน" sheet cell B13
+// Fetch total amount from "สรุปยอดเงิน" sheet - find "เงินคงเหลือ" in column A and get value from column B
 export async function fetchTotalAmount(): Promise<number | null> {
-  const sheetName = encodeURIComponent("'สรุปยอดเงิน'!B13");
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${sheetName}?key=${API_KEY}`;
+  const range = encodeURIComponent("'สรุปยอดเงิน'!A:B");
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
   
   try {
     const response = await fetch(url);
@@ -171,13 +171,23 @@ export async function fetchTotalAmount(): Promise<number | null> {
     }
     
     const data = await response.json();
-    const value = data.values?.[0]?.[0];
+    const rows: string[][] = data.values || [];
     
-    if (!value) return null;
+    // Find row where column A contains "เงินคงเหลือ"
+    for (const row of rows) {
+      const colA = (row[0] || "").trim();
+      if (colA.includes("เงินคงเหลือ")) {
+        const value = row[1];
+        if (!value) return null;
+        
+        // Parse number (handle comma-separated format)
+        const numValue = parseFloat(value.toString().replace(/,/g, ""));
+        return isNaN(numValue) ? null : numValue;
+      }
+    }
     
-    // Parse number (handle comma-separated format)
-    const numValue = parseFloat(value.toString().replace(/,/g, ""));
-    return isNaN(numValue) ? null : numValue;
+    console.error("Could not find 'เงินคงเหลือ' in column A");
+    return null;
   } catch (error) {
     console.error("Error fetching total amount:", error);
     return null;
