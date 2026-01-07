@@ -1,5 +1,5 @@
 import { Gift, AlertCircle, XCircle, ExternalLink } from "lucide-react";
-import GiftBoxGif from "@/assets/GiftBox.gif";
+import GiftBox3D from "@/assets/gift-box-3d.png";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
 import { useEffect, useState } from "react";
@@ -7,8 +7,6 @@ import confetti from "canvas-confetti";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "./ui/dialog";
 
 const newYearGreetings = [
@@ -131,21 +129,25 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
         </Card>
 
         <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
-          <DialogContent className="sm:max-w-md text-center rounded-3xl glass-card border-0 shadow-2xl">
-            <DialogHeader>
-              <DialogTitle className="text-center text-3xl gradient-success-text font-serif italic">
-                Gift box
-              </DialogTitle>
-            </DialogHeader>
-            <div className="flex flex-col items-center gap-4 py-4">
+          <DialogContent className="sm:max-w-sm text-center rounded-3xl glass-card border-0 shadow-2xl p-8">
+            <div className="flex flex-col items-center gap-5">
+              <h2 className="text-3xl font-extrabold font-kanit gradient-success-text">
+                ยินดีด้วย!
+              </h2>
               <img 
-                src={GiftBoxGif} 
+                src={GiftBox3D} 
                 alt="Gift Box" 
-                className="w-36 h-36 object-contain"
+                className="w-44 h-44 object-contain drop-shadow-xl animate-bounce-slow"
               />
-              <p className="text-lg font-medium gradient-success-text leading-relaxed px-4 gift-reveal">
+              <p className="text-lg font-medium text-foreground leading-relaxed gift-reveal">
                 {randomGreeting}
               </p>
+              <Button 
+                onClick={() => setIsGiftDialogOpen(false)}
+                className="w-full rounded-full gradient-success hover:opacity-90 transition-opacity border-0 h-12 text-base font-semibold shadow-lg mt-2"
+              >
+                รับทราบ
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
