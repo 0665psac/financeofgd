@@ -3,6 +3,7 @@ import { Search, RefreshCw, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 import Snowflakes from "@/components/Snowflakes";
 import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
@@ -128,7 +129,7 @@ const Index = () => {
           </div>
           <div className="text-center mt-2">
             {isTotalLoading ? (
-              <div className="inline-block w-5 h-5 border-2 border-green-200 border-t-green-500 rounded-full animate-spin" />
+              <Skeleton className="h-8 w-32 mx-auto" />
             ) : totalAmount !== null ? (
               <span className="text-2xl font-bold text-green-500">
                 {totalAmount.toLocaleString("th-TH")} บาท
@@ -185,9 +186,20 @@ const Index = () => {
 
         {/* Loading State */}
         {isLoading && (
-          <div className="text-center py-8">
-            <div className="inline-block w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-3" />
-            <p className="text-sm text-muted-foreground">กำลังค้นหา...</p>
+          <div className="p-6 bg-card/80 backdrop-blur-sm rounded-xl border border-border shadow-sm space-y-4">
+            <div className="flex items-center gap-3">
+              <Skeleton className="h-12 w-12 rounded-full" />
+              <div className="space-y-2 flex-1">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+              </div>
+            </div>
+            <Skeleton className="h-10 w-full" />
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-5/6" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
           </div>
         )}
 
