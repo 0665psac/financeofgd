@@ -158,9 +158,10 @@ const Index = () => {
               variant="ghost"
               size="icon"
               onClick={handleRefreshData}
+              disabled={isTotalLoading}
               className="absolute right-12 top-1 h-10 w-10 text-muted-foreground hover:text-foreground"
             >
-              <RefreshCw className="w-5 h-5" />
+              <RefreshCw className={`w-5 h-5 ${isTotalLoading ? 'animate-spin' : ''}`} />
             </Button>
             <Button
               type="submit"
