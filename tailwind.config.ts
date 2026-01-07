@@ -15,6 +15,10 @@ export default {
     extend: {
       fontFamily: {
         sans: ['"SF Pro Display"', '"SF Pro Text"', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        kanit: ['Kanit', 'sans-serif'],
+      },
+      borderRadius: {
+        '3xl': '1.5rem',
       },
       colors: {
         border: "hsl(var(--border))",

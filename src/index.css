@@ -4,46 +4,52 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 0 0% 15%;
+    --background: 220 20% 97%;
+    --foreground: 220 20% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
+    --card-foreground: 220 20% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
+    --popover-foreground: 220 20% 15%;
 
-    --primary: 0 72% 51%;
+    --primary: 350 80% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 76% 36%;
+    --secondary: 160 70% 40%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 94%;
-    --muted-foreground: 0 0% 45%;
+    --muted: 220 15% 92%;
+    --muted-foreground: 220 10% 45%;
 
-    --accent: 45 93% 47%;
-    --accent-foreground: 0 0% 15%;
+    --accent: 45 93% 55%;
+    --accent-foreground: 220 20% 15%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 0 72% 51%;
+    --border: 220 15% 88%;
+    --input: 220 15% 92%;
+    --ring: 350 80% 55%;
 
-    --radius: 0.75rem;
+    --radius: 1.5rem;
 
+    /* Premium gradient colors */
+    --gradient-success-from: 160 70% 45%;
+    --gradient-success-to: 142 76% 36%;
+    --gradient-danger-from: 350 80% 55%;
+    --gradient-danger-to: 0 72% 45%;
+    
     /* Christmas theme colors */
-    --christmas-red: 0 72% 51%;
-    --christmas-green: 142 76% 36%;
-    --christmas-gold: 45 93% 47%;
-    --christmas-snow: 0 0% 98%;
-    --christmas-dark: 0 0% 15%;
+    --christmas-red: 350 80% 55%;
+    --christmas-green: 160 70% 40%;
+    --christmas-gold: 45 93% 55%;
+    --christmas-snow: 220 20% 97%;
+    --christmas-dark: 220 20% 15%;
 
     /* Gradients */
-    --gradient-christmas: linear-gradient(135deg, hsl(0 72% 51%) 0%, hsl(0 72% 40%) 100%);
-    --gradient-snow: linear-gradient(180deg, hsl(0 0% 98%) 0%, hsl(210 40% 96%) 100%);
+    --gradient-christmas: linear-gradient(135deg, hsl(350 80% 55%) 0%, hsl(0 72% 45%) 100%);
+    --gradient-snow: linear-gradient(180deg, hsl(220 20% 97%) 0%, hsl(210 40% 96%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(0 0% 97%) 100%);
 
     --sidebar-background: 0 0% 98%;
@@ -95,6 +101,63 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Mesh gradient background */
+.mesh-gradient-bg {
+  background: 
+    radial-gradient(ellipse 80% 50% at 20% 20%, hsl(350 80% 90% / 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 30%, hsl(160 70% 85% / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 40% 80%, hsl(45 93% 85% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 90% 90%, hsl(200 60% 90% / 0.4) 0%, transparent 50%),
+    linear-gradient(180deg, hsl(220 20% 98%) 0%, hsl(220 25% 95%) 100%);
+}
+
+/* Glassmorphism card */
+.glass-card {
+  background: hsl(0 0% 100% / 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid hsl(0 0% 100% / 0.5);
+  box-shadow: 
+    0 8px 32px hsl(220 20% 15% / 0.08),
+    0 2px 8px hsl(220 20% 15% / 0.04),
+    inset 0 1px 0 hsl(0 0% 100% / 0.6);
+}
+
+/* Premium gradients */
+.gradient-success {
+  background: linear-gradient(135deg, hsl(160 70% 45%) 0%, hsl(142 76% 36%) 100%);
+}
+
+.gradient-danger {
+  background: linear-gradient(135deg, hsl(350 80% 55%) 0%, hsl(0 72% 45%) 100%);
+}
+
+.gradient-success-text {
+  background: linear-gradient(135deg, hsl(160 70% 40%) 0%, hsl(142 76% 32%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-danger-text {
+  background: linear-gradient(135deg, hsl(350 80% 50%) 0%, hsl(0 72% 40%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Pill search input */
+.pill-input {
+  background: hsl(0 0% 100% / 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid hsl(0 0% 100% / 0.6);
+  box-shadow: 
+    0 4px 24px hsl(220 20% 15% / 0.06),
+    0 2px 8px hsl(220 20% 15% / 0.04),
+    inset 0 1px 0 hsl(0 0% 100% / 0.8);
 }
 
 /* Snowflake animation */
