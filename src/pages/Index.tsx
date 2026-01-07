@@ -8,7 +8,7 @@ import Snowflakes from "@/components/Snowflakes";
 import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
-import { incrementSearchCounter } from "@/lib/searchCounter";
+import { logSearchHistory } from "@/lib/searchCounter";
 import { fetchTotalAmount } from "@/lib/googleSheets";
 import {
   getSearchHistory,
@@ -52,8 +52,10 @@ const Index = () => {
       setResult(searchResult);
       setSearchedId(searchId);
 
-      // Increment search counter in Google Sheet
-      incrementSearchCounter(searchId);
+      // Log search history to Google Sheet (only if student found)
+      if (searchResult.found && searchResult.studentName) {
+        logSearchHistory(searchId, searchResult.studentName);
+      }
 
       // Save to history
       addToSearchHistory(searchId);
