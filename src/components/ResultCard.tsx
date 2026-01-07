@@ -2,12 +2,19 @@ import { Gift, AlertCircle, XCircle, ExternalLink } from "lucide-react";
 import GiftBox3D from "@/assets/gift-box-3d.png";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import confetti from "canvas-confetti";
 import {
   Dialog,
   DialogContent,
 } from "./ui/dialog";
+
+// Preload gift box image on module load
+const preloadGiftImage = () => {
+  const img = new Image();
+  img.src = GiftBox3D;
+};
+preloadGiftImage();
 
 const newYearGreetings = [
   "สวัสดีปีใหม่ 2026! ขอให้มีความสุขตลอดปี 🎉✨",
