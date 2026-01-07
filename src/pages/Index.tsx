@@ -103,7 +103,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-snow relative overflow-hidden">
+    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden">
       <Snowflakes />
 
       {/* Main Content */}
@@ -121,17 +121,19 @@ const Index = () => {
           </div>
         </header>
 
-        {/* Total Amount Display */}
-        <div className="mb-6 p-4 bg-card/80 backdrop-blur-sm rounded-xl border border-border shadow-sm">
+        {/* Total Amount Display - Glassmorphism */}
+        <div className="mb-6 p-6 glass-card rounded-3xl">
           <div className="flex items-center justify-center gap-2">
-            <Wallet className="w-5 h-5 text-green-500" />
+            <div className="w-8 h-8 rounded-full gradient-success flex items-center justify-center">
+              <Wallet className="w-4 h-4 text-white" />
+            </div>
             <span className="text-sm text-muted-foreground">ยอดเงินรวมทั้งหมด</span>
           </div>
-          <div className="text-center mt-2">
+          <div className="text-center mt-3">
             {isTotalLoading ? (
-              <Skeleton className="h-8 w-32 mx-auto" />
+              <Skeleton className="h-12 w-40 mx-auto rounded-2xl" />
             ) : totalAmount !== null ? (
-              <span className="text-2xl font-bold text-green-500">
+              <span className="text-4xl font-extrabold font-kanit gradient-success-text">
                 {totalAmount.toLocaleString("th-TH")} บาท
               </span>
             ) : (
@@ -140,37 +142,42 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Search Form */}
+        {/* Search Form - Floating Pill */}
         <form onSubmit={handleSubmit} className="mb-4">
-          <div className="relative">
-            <Input
-              type="text"
-              placeholder="กรอกรหัสนิสิต"
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-              onFocus={() => setIsInputFocused(true)}
-              onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
-              className="pr-24 h-12 text-base bg-card border-border focus:border-primary focus:ring-primary"
-              disabled={isLoading}
-            />
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              onClick={handleRefreshData}
-              disabled={isTotalLoading}
-              className="absolute right-12 top-1 h-10 w-10 text-muted-foreground hover:text-foreground"
-            >
-              <RefreshCw className={`w-5 h-5 ${isTotalLoading ? 'animate-spin' : ''}`} />
-            </Button>
-            <Button
-              type="submit"
-              size="icon"
-              className="absolute right-1 top-1 h-10 w-10 bg-primary hover:bg-primary/90"
-              disabled={isLoading || !studentId.trim()}
-            >
-              <Search className="w-5 h-5" />
-            </Button>
+          <div className="relative pill-input rounded-full p-1.5">
+            <div className="flex items-center">
+              <div className="pl-4 pr-2">
+                <Search className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <Input
+                type="text"
+                placeholder="กรอกรหัสนิสิต"
+                value={studentId}
+                onChange={(e) => setStudentId(e.target.value)}
+                onFocus={() => setIsInputFocused(true)}
+                onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
+                className="flex-1 border-0 bg-transparent h-11 text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
+                disabled={isLoading}
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={handleRefreshData}
+                disabled={isTotalLoading}
+                className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full"
+              >
+                <RefreshCw className={`w-4 h-4 ${isTotalLoading ? 'animate-spin' : ''}`} />
+              </Button>
+              <Button
+                type="submit"
+                size="icon"
+                className="h-10 w-10 rounded-full gradient-success hover:opacity-90 transition-opacity"
+                disabled={isLoading || !studentId.trim()}
+              >
+                <Search className="w-4 h-4 text-white" />
+              </Button>
+            </div>
           </div>
         </form>
 
@@ -185,9 +192,9 @@ const Index = () => {
           </div>
         )}
 
-        {/* Loading State */}
+        {/* Loading State - Glassmorphism */}
         {isLoading && (
-          <div className="p-6 bg-card/80 backdrop-blur-sm rounded-xl border border-border shadow-sm space-y-4">
+          <div className="p-6 glass-card rounded-3xl space-y-4">
             <div className="flex items-center gap-3">
               <Skeleton className="h-12 w-12 rounded-full" />
               <div className="space-y-2 flex-1">
@@ -195,7 +202,7 @@ const Index = () => {
                 <Skeleton className="h-4 w-1/2" />
               </div>
             </div>
-            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-12 w-full rounded-2xl" />
             <div className="space-y-2">
               <Skeleton className="h-4 w-full" />
               <Skeleton className="h-4 w-5/6" />

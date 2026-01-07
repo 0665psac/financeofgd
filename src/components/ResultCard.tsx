@@ -43,11 +43,12 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
   // Case A: Not found
   if (!result.found) {
     return (
-      <Card className="animate-scale-in border-destructive/30 bg-destructive/5">
-        <CardContent className="pt-6">
+      <Card className="animate-scale-in glass-card rounded-3xl border-0 overflow-hidden">
+        <div className="absolute inset-0 gradient-danger opacity-5" />
+        <CardContent className="pt-6 relative">
           <div className="flex flex-col items-center text-center gap-3">
-            <div className="w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
-              <XCircle className="w-8 h-8 text-destructive" />
+            <div className="w-16 h-16 rounded-full gradient-danger flex items-center justify-center shadow-lg">
+              <XCircle className="w-8 h-8 text-white" />
             </div>
             <div>
               <p className="font-semibold text-foreground mb-1">ไม่พบข้อมูล</p>
@@ -104,34 +105,35 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
   if (result.totalAmount === 0) {
     return (
       <>
-        <Card className="animate-scale-in border-secondary/30 bg-secondary/5">
-          <CardHeader className="pb-2">
+        <Card className="animate-scale-in glass-card rounded-3xl border-0 overflow-hidden">
+          <div className="absolute inset-0 gradient-success opacity-5" />
+          <CardHeader className="pb-2 relative">
             <div className="text-center">
               <p className="text-sm text-muted-foreground">ผลการตรวจสอบของ</p>
               <p className="text-lg font-semibold text-foreground">{result.studentName}</p>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="relative">
             <div className="flex flex-col items-center text-center gap-3">
               <button
                 onClick={handleGiftClick}
-                className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center cursor-pointer hover:bg-green-500/30 transition-colors animate-pulse"
+                className="w-16 h-16 rounded-full gradient-success flex items-center justify-center cursor-pointer hover:scale-105 transition-transform shadow-lg"
               >
-                <Gift className="w-8 h-8 text-green-500" />
+                <Gift className="w-8 h-8 text-white" />
               </button>
               <p className="text-xs text-muted-foreground">คลิกเพื่อเปิดของขวัญ!</p>
               <div>
-                <p className="font-semibold text-secondary mb-1">ไม่มียอดค้างชำระ</p>
-                <p className="text-3xl font-bold text-secondary">0 บาท</p>
+                <p className="font-semibold gradient-success-text mb-1">ไม่มียอดค้างชำระ</p>
+                <p className="text-5xl font-extrabold font-kanit gradient-success-text">0 บาท</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Dialog open={isGiftDialogOpen} onOpenChange={setIsGiftDialogOpen}>
-          <DialogContent className="sm:max-w-md text-center rounded-3xl bg-white border-0 shadow-xl">
+          <DialogContent className="sm:max-w-md text-center rounded-3xl glass-card border-0 shadow-2xl">
             <DialogHeader>
-              <DialogTitle className="text-center text-3xl text-green-600 font-serif italic">
+              <DialogTitle className="text-center text-3xl gradient-success-text font-serif italic">
                 Gift box
               </DialogTitle>
             </DialogHeader>
@@ -141,7 +143,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 alt="Gift Box" 
                 className="w-36 h-36 object-contain"
               />
-              <p className="text-lg font-medium text-green-600 leading-relaxed px-4 gift-reveal">
+              <p className="text-lg font-medium gradient-success-text leading-relaxed px-4 gift-reveal">
                 {randomGreeting}
               </p>
             </div>
@@ -153,8 +155,8 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
 
   // Case C: Has outstanding balance
   return (
-    <Card className="animate-scale-in border-primary/30 overflow-hidden">
-      <div className="bg-gradient-christmas p-4 text-primary-foreground">
+    <Card className="animate-scale-in glass-card rounded-3xl border-0 overflow-hidden">
+      <div className="gradient-danger p-5 text-white">
         <div className="text-center">
           <p className="text-sm opacity-90">ผลการตรวจสอบของ</p>
           <p className="text-lg font-semibold">{result.studentName}</p>
@@ -163,16 +165,18 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
       
       <CardContent className="pt-6">
         {/* Total Amount */}
-        <div className="text-center mb-6 p-4 bg-primary/5 rounded-lg">
-          <div className="flex items-center justify-center gap-2 mb-2">
-            <AlertCircle className="w-5 h-5 text-primary" />
+        <div className="text-center mb-6 p-5 bg-primary/5 rounded-2xl">
+          <div className="flex items-center justify-center gap-2 mb-3">
+            <div className="w-8 h-8 rounded-full gradient-danger flex items-center justify-center">
+              <AlertCircle className="w-4 h-4 text-white" />
+            </div>
             <p className="text-sm text-muted-foreground">ยอดค้างชำระรวมทั้งหมด</p>
           </div>
-          <p className="text-4xl font-bold text-primary pulse-glow inline-block px-4 py-2 rounded-lg">
+          <p className="text-5xl font-extrabold font-kanit gradient-danger-text">
             {result.totalAmount?.toLocaleString()} บาท
           </p>
           <Button
-            className="mt-4 w-full"
+            className="mt-5 w-full rounded-full gradient-danger hover:opacity-90 transition-opacity border-0 h-12 text-base font-medium shadow-lg"
             onClick={() => window.open("https://forms.gle/FepKQ6mFyFJzg2GGA", "_blank")}
           >
             <ExternalLink className="w-4 h-4 mr-2" />
@@ -186,7 +190,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           {result.monthDetails?.map((month, index) => (
             <div
               key={month.monthName}
-              className="p-3 bg-muted/50 rounded-lg animate-fade-in"
+              className="p-4 bg-muted/30 rounded-2xl animate-fade-in backdrop-blur-sm"
               style={{ animationDelay: `${index * 100}ms` }}
             >
               <div className="flex justify-between items-start mb-2">
@@ -196,20 +200,20 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                     ต้องชำระ {month.pricePerWeek} บาท/สัปดาห์
                   </p>
                 </div>
-                <p className="font-semibold text-primary">
+                <p className="font-bold font-kanit gradient-danger-text text-lg">
                   {month.totalAmount.toLocaleString()} บาท
                 </p>
               </div>
-              <div className="flex gap-1 flex-wrap">
+              <div className="flex gap-1.5 flex-wrap">
                 {[1, 2, 3, 4].map((week) => {
                   const isUnpaid = month.unpaidWeeks.includes(week);
                   return (
                     <span
                       key={week}
-                      className={`text-xs px-2 py-1 rounded-full ${
+                      className={`text-xs px-3 py-1.5 rounded-full font-medium ${
                         isUnpaid
-                          ? "bg-primary/20 text-primary font-medium"
-                          : "bg-secondary/20 text-secondary"
+                          ? "gradient-danger text-white"
+                          : "gradient-success text-white"
                       }`}
                     >
                       W{week} {isUnpaid ? "❌️" : "✅️"}
