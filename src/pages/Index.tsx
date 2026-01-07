@@ -142,55 +142,55 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Search Form - Floating Pill */}
-        <form onSubmit={handleSubmit} className="mb-4">
-          <div className="relative pill-input rounded-full p-1.5">
-            <div className="flex items-center">
-              <div className="pl-4 pr-2">
-                <Search className="w-5 h-5 text-muted-foreground" />
+        {/* Search Form - Floating Pill with Dropdown */}
+        <form onSubmit={handleSubmit} className="mb-6">
+          <div className="relative">
+            <div className="pill-input rounded-full p-1.5">
+              <div className="flex items-center">
+                <div className="pl-4 pr-2">
+                  <Search className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <Input
+                  type="text"
+                  placeholder="กรอกรหัสนิสิต"
+                  value={studentId}
+                  onChange={(e) => setStudentId(e.target.value)}
+                  onFocus={() => setIsInputFocused(true)}
+                  onBlur={() => setTimeout(() => setIsInputFocused(false), 150)}
+                  className="flex-1 border-0 bg-transparent h-11 text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
+                  disabled={isLoading}
+                />
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleRefreshData}
+                  disabled={isTotalLoading}
+                  className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full"
+                >
+                  <RefreshCw className={`w-4 h-4 ${isTotalLoading ? 'animate-spin' : ''}`} />
+                </Button>
+                <Button
+                  type="submit"
+                  size="icon"
+                  className="h-10 w-10 rounded-full gradient-success hover:opacity-90 transition-opacity"
+                  disabled={isLoading || !studentId.trim()}
+                >
+                  <Search className="w-4 h-4 text-white" />
+                </Button>
               </div>
-              <Input
-                type="text"
-                placeholder="กรอกรหัสนิสิต"
-                value={studentId}
-                onChange={(e) => setStudentId(e.target.value)}
-                onFocus={() => setIsInputFocused(true)}
-                onBlur={() => setTimeout(() => setIsInputFocused(false), 200)}
-                className="flex-1 border-0 bg-transparent h-11 text-base focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-muted-foreground/60"
-                disabled={isLoading}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                onClick={handleRefreshData}
-                disabled={isTotalLoading}
-                className="h-9 w-9 text-muted-foreground hover:text-foreground rounded-full"
-              >
-                <RefreshCw className={`w-4 h-4 ${isTotalLoading ? 'animate-spin' : ''}`} />
-              </Button>
-              <Button
-                type="submit"
-                size="icon"
-                className="h-10 w-10 rounded-full gradient-success hover:opacity-90 transition-opacity"
-                disabled={isLoading || !studentId.trim()}
-              >
-                <Search className="w-4 h-4 text-white" />
-              </Button>
             </div>
+
+            {/* Search History Dropdown */}
+            {isInputFocused && history.length > 0 && (
+              <SearchHistory
+                history={history}
+                onSelect={handleHistorySelect}
+                onClear={handleClearHistory}
+              />
+            )}
           </div>
         </form>
-
-        {/* Search History */}
-        {isInputFocused && history.length > 0 && (
-          <div className="mb-6">
-            <SearchHistory
-              history={history}
-              onSelect={handleHistorySelect}
-              onClear={handleClearHistory}
-            />
-          </div>
-        )}
 
         {/* Loading State - Glassmorphism */}
         {isLoading && (
