@@ -1,6 +1,6 @@
 // Google Apps Script Web App URL for logging search history
 // User needs to deploy a Google Apps Script and paste the URL here
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyfWWK2Z0mmEpUN0nMSfuf7ayIC0Xz5_maR0GUj_n6QqLesN7o7QH-iJ8UMf971_b26/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4vIcOuDmfNzQUePMRE_FXcuBW4Q-LQHzB2wTkiSmGIdBkBsmjftyeXXv_VvJqhrLn/exec";
 
 export async function logSearchHistory(studentId: string, studentName: string): Promise<void> {
   const trimmedId = studentId.trim().replace(/\D/g, "");
