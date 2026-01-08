@@ -1,12 +1,9 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
-type ThemeMode = "light" | "dark" | "system";
 type ResolvedTheme = "light" | "dark";
 
 interface ThemeContextType {
-  mode: ThemeMode;
-  resolvedTheme: ResolvedTheme;
-  setMode: (mode: ThemeMode) => void;
+  theme: ResolvedTheme;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
@@ -19,50 +16,27 @@ function getSystemTheme(): ResolvedTheme {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("theme-mode") as ThemeMode;
-      if (stored && ["light", "dark", "system"].includes(stored)) return stored;
-    }
-    return "system"; // Default to system
-  });
-
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => {
-    if (mode === "system") return getSystemTheme();
-    return mode as ResolvedTheme;
-  });
+  const [theme, setTheme] = useState<ResolvedTheme>(getSystemTheme);
 
   useEffect(() => {
-    const updateResolvedTheme = () => {
-      const newResolved = mode === "system" ? getSystemTheme() : mode;
-      setResolvedTheme(newResolved);
+    const updateTheme = () => {
+      const newTheme = getSystemTheme();
+      setTheme(newTheme);
       
       const root = document.documentElement;
       root.classList.remove("light", "dark");
-      root.classList.add(newResolved);
+      root.classList.add(newTheme);
     };
 
-    updateResolvedTheme();
-    localStorage.setItem("theme-mode", mode);
+    updateTheme();
 
-    // Listen for system theme changes
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    const handleChange = () => {
-      if (mode === "system") {
-        updateResolvedTheme();
-      }
-    };
-
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [mode]);
-
-  const setMode = (newMode: ThemeMode) => {
-    setModeState(newMode);
-  };
+    mediaQuery.addEventListener("change", updateTheme);
+    return () => mediaQuery.removeEventListener("change", updateTheme);
+  }, []);
 
   return (
-    <ThemeContext.Provider value={{ mode, resolvedTheme, setMode }}>
+    <ThemeContext.Provider value={{ theme }}>
       {children}
     </ThemeContext.Provider>
   );
