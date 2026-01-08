@@ -11,6 +11,7 @@ export interface SearchResult {
   found: boolean;
   studentName?: string;
   totalAmount?: number;
+  paidAmount?: number;
   monthDetails?: MonthDetail[];
 }
 
@@ -47,6 +48,7 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
     let studentName: string | undefined;
     const monthDetails: MonthDetail[] = [];
     let totalAmount = 0;
+    let paidAmount = 0;
     let foundInAnySheet = false;
 
     for (const sheet of allSheets) {
@@ -63,12 +65,17 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
         // Determine price per week based on sheet date
         const pricePerWeek = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
 
-        // Find unpaid weeks
+        // Find unpaid and paid weeks
         const unpaidWeeks: number[] = [];
-        if (!record.week1) unpaidWeeks.push(1);
-        if (!record.week2) unpaidWeeks.push(2);
-        if (!record.week3) unpaidWeeks.push(3);
-        if (!record.week4) unpaidWeeks.push(4);
+        let paidWeeksCount = 0;
+        
+        if (!record.week1) unpaidWeeks.push(1); else paidWeeksCount++;
+        if (!record.week2) unpaidWeeks.push(2); else paidWeeksCount++;
+        if (!record.week3) unpaidWeeks.push(3); else paidWeeksCount++;
+        if (!record.week4) unpaidWeeks.push(4); else paidWeeksCount++;
+
+        // Add to paid amount
+        paidAmount += paidWeeksCount * pricePerWeek;
 
         if (unpaidWeeks.length > 0) {
           const monthTotal = unpaidWeeks.length * pricePerWeek;
@@ -92,6 +99,7 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
       found: true,
       studentName,
       totalAmount,
+      paidAmount,
       monthDetails,
     };
   } catch (error) {
