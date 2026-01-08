@@ -130,7 +130,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
               <p className="text-xs text-muted-foreground">คลิกเพื่อเปิดของขวัญ!</p>
               <div>
                 <p className="font-semibold gradient-success-text mb-1">ไม่มียอดค้างชำระ</p>
-                <p className="text-5xl font-extrabold font-kanit gradient-success-text">
+                <p className="text-3xl font-extrabold font-kanit gradient-success-text">
                   ยอดสะสม {(result.paidAmount ?? 0).toLocaleString()} บาท
                 </p>
               </div>
