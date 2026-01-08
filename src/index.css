@@ -76,33 +76,52 @@
   }
 
   .dark {
-    --background: 0 0% 10%;
-    --foreground: 0 0% 98%;
+    --background: 220 20% 10%;
+    --foreground: 220 15% 95%;
 
-    --card: 0 0% 12%;
-    --card-foreground: 0 0% 98%;
+    --card: 220 20% 14%;
+    --card-foreground: 220 15% 95%;
 
-    --popover: 0 0% 12%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 220 20% 14%;
+    --popover-foreground: 220 15% 95%;
 
-    --primary: 0 72% 55%;
+    --primary: 350 75% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 76% 40%;
+    --secondary: 160 65% 45%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 65%;
+    --muted: 220 15% 20%;
+    --muted-foreground: 220 10% 60%;
 
-    --accent: 45 93% 50%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 45 90% 55%;
+    --accent-foreground: 220 20% 10%;
 
-    --destructive: 0 62% 30%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive: 0 70% 50%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 0 72% 55%;
+    --border: 220 15% 22%;
+    --input: 220 15% 22%;
+    --ring: 350 75% 55%;
+
+    --christmas-red: 350 75% 55%;
+    --christmas-green: 160 65% 45%;
+    --christmas-gold: 45 90% 55%;
+    --christmas-snow: 220 20% 10%;
+    --christmas-dark: 220 15% 95%;
+
+    --gradient-christmas: linear-gradient(135deg, hsl(350 75% 55%) 0%, hsl(0 68% 45%) 100%);
+    --gradient-snow: linear-gradient(180deg, hsl(220 20% 10%) 0%, hsl(220 20% 14%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(220 20% 16%) 0%, hsl(220 20% 12%) 100%);
+
+    --sidebar-background: 220 20% 12%;
+    --sidebar-foreground: 220 15% 90%;
+    --sidebar-primary: 220 15% 95%;
+    --sidebar-primary-foreground: 220 20% 10%;
+    --sidebar-accent: 220 15% 18%;
+    --sidebar-accent-foreground: 220 15% 95%;
+    --sidebar-border: 220 15% 22%;
+    --sidebar-ring: 350 75% 55%;
   }
 }
 
@@ -126,6 +145,15 @@
     linear-gradient(180deg, hsl(220 20% 98%) 0%, hsl(220 25% 95%) 100%);
 }
 
+.dark .mesh-gradient-bg {
+  background: 
+    radial-gradient(ellipse 80% 50% at 20% 20%, hsl(350 75% 25% / 0.4) 0%, transparent 50%),
+    radial-gradient(ellipse 60% 40% at 80% 30%, hsl(160 65% 25% / 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 50% at 40% 80%, hsl(45 90% 30% / 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse 70% 60% at 90% 90%, hsl(200 50% 25% / 0.3) 0%, transparent 50%),
+    linear-gradient(180deg, hsl(220 20% 10%) 0%, hsl(220 20% 8%) 100%);
+}
+
 /* Glassmorphism card */
 .glass-card {
   background: hsl(0 0% 100% / 0.7);
@@ -136,6 +164,15 @@
     0 8px 32px hsl(220 20% 15% / 0.08),
     0 2px 8px hsl(220 20% 15% / 0.04),
     inset 0 1px 0 hsl(0 0% 100% / 0.6);
+}
+
+.dark .glass-card {
+  background: hsl(220 20% 18% / 0.7);
+  border: 1px solid hsl(220 15% 30% / 0.5);
+  box-shadow: 
+    0 8px 32px hsl(0 0% 0% / 0.3),
+    0 2px 8px hsl(0 0% 0% / 0.2),
+    inset 0 1px 0 hsl(220 15% 30% / 0.4);
 }
 
 /* Premium gradients */
@@ -154,8 +191,22 @@
   background-clip: text;
 }
 
+.dark .gradient-success-text {
+  background: linear-gradient(135deg, hsl(160 65% 55%) 0%, hsl(142 70% 50%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
 .gradient-danger-text {
   background: linear-gradient(135deg, hsl(350 80% 50%) 0%, hsl(0 72% 40%) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dark .gradient-danger-text {
+  background: linear-gradient(135deg, hsl(350 75% 60%) 0%, hsl(0 68% 55%) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -171,6 +222,15 @@
     0 4px 24px hsl(220 20% 15% / 0.06),
     0 2px 8px hsl(220 20% 15% / 0.04),
     inset 0 1px 0 hsl(0 0% 100% / 0.8);
+}
+
+.dark .pill-input {
+  background: hsl(220 20% 18% / 0.8);
+  border: 1px solid hsl(220 15% 30% / 0.6);
+  box-shadow: 
+    0 4px 24px hsl(0 0% 0% / 0.2),
+    0 2px 8px hsl(0 0% 0% / 0.15),
+    inset 0 1px 0 hsl(220 15% 30% / 0.5);
 }
 
 /* Snowflake animation */
