@@ -57,6 +57,15 @@ const Index = () => {
         logSearchHistory(searchId, searchResult.studentName);
       }
 
+      // Show notification if has outstanding balance
+      if (searchResult.found && searchResult.totalAmount && searchResult.totalAmount > 0) {
+        toast({
+          title: "⚠️ มียอดค้างชำระ",
+          description: `คุณ${searchResult.studentName} มียอดค้างชำระ ${searchResult.totalAmount.toLocaleString()} บาท`,
+          variant: "destructive",
+        });
+      }
+
       // Save to history
       addToSearchHistory(searchId);
       setHistory(getSearchHistory());
