@@ -1,4 +1,5 @@
-import { useState, useEffect, FormEvent } from "react";
+import { useState, useEffect, FormEvent, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Search, RefreshCw, Wallet } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -17,6 +18,7 @@ import {
 } from "@/lib/localStorage";
 
 const Index = () => {
+  const navigate = useNavigate();
   const [studentId, setStudentId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -26,6 +28,25 @@ const Index = () => {
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
   const [isTotalLoading, setIsTotalLoading] = useState(true);
   const { toast } = useToast();
+
+  // Secret dashboard access: triple click within 3 seconds
+  const clickTimesRef = useRef<number[]>([]);
+  
+  const handleTotalAmountClick = () => {
+    const now = Date.now();
+    clickTimesRef.current.push(now);
+    
+    // Keep only clicks within the last 3 seconds
+    clickTimesRef.current = clickTimesRef.current.filter(
+      (time) => now - time < 3000
+    );
+    
+    // Navigate to dashboard if 3 clicks within 3 seconds
+    if (clickTimesRef.current.length >= 3) {
+      clickTimesRef.current = [];
+      navigate("/dashboard");
+    }
+  };
 
   useEffect(() => {
     setHistory(getSearchHistory());
@@ -124,7 +145,10 @@ const Index = () => {
         </header>
 
         {/* Total Amount Display - Glassmorphism */}
-        <div className="mb-6 p-6 glass-card rounded-3xl">
+        <div 
+          className="mb-6 p-6 glass-card rounded-3xl cursor-pointer select-none"
+          onClick={handleTotalAmountClick}
+        >
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-full gradient-success flex items-center justify-center">
               <Wallet className="w-4 h-4 text-white" />
