@@ -22,19 +22,27 @@ interface MonthDetailDialogProps {
 }
 
 const MonthDetailDialog = ({ open, onOpenChange, month, students, isLoading }: MonthDetailDialogProps) => {
-  // Group students by major
-  const groupedByMajor = students.reduce((acc, student) => {
+  // Filter only students with outstanding payments (not paid all 4 weeks)
+  const outstandingStudents = students.filter((s) => s.weeksPaid < 4);
+  
+  // Sort by weeks NOT paid (most outstanding first), then by student ID
+  const sortedStudents = [...outstandingStudents].sort((a, b) => {
+    const aOutstanding = 4 - a.weeksPaid;
+    const bOutstanding = 4 - b.weeksPaid;
+    if (bOutstanding !== aOutstanding) {
+      return bOutstanding - aOutstanding; // Most outstanding first
+    }
+    return a.studentId.localeCompare(b.studentId);
+  });
+
+  // Group sorted students by major
+  const groupedByMajor = sortedStudents.reduce((acc, student) => {
     if (!acc[student.major]) {
       acc[student.major] = [];
     }
     acc[student.major].push(student);
     return acc;
   }, {} as Record<string, StudentStatus[]>);
-
-  // Sort each group by student ID
-  Object.keys(groupedByMajor).forEach((major) => {
-    groupedByMajor[major].sort((a, b) => a.studentId.localeCompare(b.studentId));
-  });
 
   // Sort majors alphabetically
   const sortedMajors = Object.keys(groupedByMajor).sort();
@@ -56,8 +64,11 @@ const MonthDetailDialog = ({ open, onOpenChange, month, students, isLoading }: M
       <DialogContent className="max-w-lg max-h-[85vh] p-0">
         <DialogHeader className="p-6 pb-0">
           <DialogTitle className="text-xl font-bold">
-            รายละเอียด {month}
+            ยอดค้าง {month}
           </DialogTitle>
+          <p className="text-sm text-muted-foreground">
+            เรียงจากยอดค้างมากที่สุด
+          </p>
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh] px-6 pb-6">
@@ -65,12 +76,13 @@ const MonthDetailDialog = ({ open, onOpenChange, month, students, isLoading }: M
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 animate-spin text-primary" />
             </div>
-          ) : students.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">ไม่พบข้อมูลนิสิต</p>
+          ) : sortedStudents.length === 0 ? (
+            <p className="text-center text-muted-foreground py-8">ไม่มีนิสิตค้างชำระ 🎉</p>
           ) : (
             <div className="space-y-6">
               {/* Header */}
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="w-8 text-center">ค้าง</span>
                 <span className="w-24">รหัสนิสิต</span>
                 <span className="flex-1">ชื่อ</span>
                 <div className="flex gap-1">
@@ -87,7 +99,7 @@ const MonthDetailDialog = ({ open, onOpenChange, month, students, isLoading }: M
                   <div className="flex items-center justify-between bg-primary/10 rounded-xl px-4 py-2">
                     <span className="font-bold text-primary">{major}</span>
                     <span className="text-xs text-muted-foreground">
-                      {groupedByMajor[major].length} คน
+                      ค้าง {groupedByMajor[major].length} คน
                     </span>
                   </div>
 
@@ -98,6 +110,9 @@ const MonthDetailDialog = ({ open, onOpenChange, month, students, isLoading }: M
                         key={student.studentId}
                         className="flex items-center gap-2 p-2 bg-background/50 rounded-xl hover:bg-background/80 transition-colors"
                       >
+                        <span className="w-8 text-center text-sm font-bold text-red-500">
+                          {4 - student.weeksPaid}
+                        </span>
                         <span className="w-24 text-xs font-mono text-muted-foreground">
                           {student.studentId}
                         </span>
@@ -119,19 +134,19 @@ const MonthDetailDialog = ({ open, onOpenChange, month, students, isLoading }: M
               {/* Summary */}
               <div className="mt-4 p-4 bg-muted/50 rounded-xl">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">จำนวนนิสิตทั้งหมด</span>
+                  <span className="text-muted-foreground">นิสิตทั้งหมด</span>
                   <span className="font-bold">{students.length} คน</span>
                 </div>
                 <div className="flex justify-between text-sm mt-1">
-                  <span className="text-muted-foreground">จ่ายครบ 4 สัปดาห์</span>
+                  <span className="text-muted-foreground">จ่ายครบแล้ว</span>
                   <span className="font-bold text-emerald-500">
                     {students.filter((s) => s.weeksPaid === 4).length} คน
                   </span>
                 </div>
                 <div className="flex justify-between text-sm mt-1">
-                  <span className="text-muted-foreground">ยังไม่จ่ายเลย</span>
+                  <span className="text-muted-foreground">ยังค้างอยู่</span>
                   <span className="font-bold text-red-500">
-                    {students.filter((s) => s.weeksPaid === 0).length} คน
+                    {sortedStudents.length} คน
                   </span>
                 </div>
               </div>
