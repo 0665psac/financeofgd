@@ -193,3 +193,107 @@ export async function fetchTotalAmount(): Promise<number | null> {
     return null;
   }
 }
+
+// Interface for dashboard summary data
+export interface DashboardSummary {
+  balance: number | null;           // เงินคงเหลือ
+  totalCollected: number | null;    // เงินที่เก็บมาแล้ว (รวม)
+  totalOutstanding: number | null;  // ขาดอีก (รวม)
+  totalExpected: number | null;     // เงินที่จะเก็บ (รวม)
+  totalExpenses: number | null;     // รายจ่ายรวม
+  studentCount: number | null;      // จำนวนนิสิตในสาขา
+  monthlyData: Array<{
+    month: string;
+    collected: number;
+    outstanding: number;
+    expected: number;
+  }>;
+}
+
+// Fetch dashboard summary data from "สรุปยอดเงิน" sheet
+export async function fetchDashboardSummary(): Promise<DashboardSummary> {
+  const range = encodeURIComponent("'สรุปยอดเงิน'!A:O");
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
+  
+  const summary: DashboardSummary = {
+    balance: null,
+    totalCollected: null,
+    totalOutstanding: null,
+    totalExpected: null,
+    totalExpenses: null,
+    studentCount: null,
+    monthlyData: [],
+  };
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`Failed to fetch dashboard summary: ${response.statusText}`);
+      return summary;
+    }
+    
+    const data = await response.json();
+    const rows: string[][] = data.values || [];
+    
+    const parseNumber = (value: string | undefined): number | null => {
+      if (!value) return null;
+      const numValue = parseFloat(value.toString().replace(/,/g, ""));
+      return isNaN(numValue) ? null : numValue;
+    };
+    
+    for (const row of rows) {
+      const colA = (row[0] || "").trim();
+      
+      // Find "เงินคงเหลือ" row
+      if (colA.includes("เงินคงเหลือ")) {
+        summary.balance = parseNumber(row[1]);
+      }
+      
+      // Find "รวม" row for totals (in income section)
+      if (colA === "รวม") {
+        summary.totalCollected = parseNumber(row[1]);
+        summary.totalOutstanding = parseNumber(row[2]);
+        summary.totalExpected = parseNumber(row[3]);
+      }
+      
+      // Parse monthly data (rows with months like "สิงหาคม (68)")
+      if (SHEET_NAME_PATTERN.test(colA) || colA === "ค่าพาน") {
+        const collected = parseNumber(row[1]);
+        const outstanding = parseNumber(row[2]);
+        const expected = parseNumber(row[3]);
+        
+        if (collected !== null || outstanding !== null || expected !== null) {
+          summary.monthlyData.push({
+            month: colA,
+            collected: collected ?? 0,
+            outstanding: outstanding ?? 0,
+            expected: expected ?? 0,
+          });
+        }
+      }
+    }
+    
+    // Look for expenses total (column F-G, "รวม" in expenses section)
+    for (const row of rows) {
+      const colF = (row[5] || "").trim();
+      if (colF === "รวม") {
+        summary.totalExpenses = parseNumber(row[6]);
+        break;
+      }
+    }
+    
+    // Look for student count (column N-O, "จำนวนนิสิตในสาขา")
+    for (const row of rows) {
+      const colN = (row[13] || "").trim();
+      if (colN.includes("จำนวนนิสิตในสาขา")) {
+        summary.studentCount = parseNumber(row[14]);
+        break;
+      }
+    }
+    
+    return summary;
+  } catch (error) {
+    console.error("Error fetching dashboard summary:", error);
+    return summary;
+  }
+}
