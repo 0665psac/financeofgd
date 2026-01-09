@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Users, TrendingUp, DollarSign, Wallet, Receipt, RefreshCw, ChevronRight } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, DollarSign, Wallet, Receipt, RefreshCw, ChevronRight, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
@@ -129,6 +129,19 @@ const Dashboard = () => {
             )}
           </div>
 
+          {/* เงินที่จะเก็บทั้งหมด */}
+          <div className="p-4 glass-card rounded-2xl">
+            <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mb-3">
+              <Target className="w-5 h-5 text-blue-500" />
+            </div>
+            <p className="text-xs text-muted-foreground mb-1">เป้าหมาย</p>
+            {isLoading ? (
+              <Skeleton className="h-7 w-24 rounded" />
+            ) : (
+              <p className="text-xl font-bold text-blue-500">{formatNumber(summary?.totalExpected)}</p>
+            )}
+          </div>
+
           {/* รายจ่าย */}
           <div className="p-4 glass-card rounded-2xl">
             <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center mb-3">
@@ -143,16 +156,20 @@ const Dashboard = () => {
           </div>
 
           {/* จำนวนนิสิต */}
-          <div className="p-4 glass-card rounded-2xl">
-            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mb-3">
-              <Users className="w-5 h-5 text-primary" />
+          <div className="p-4 glass-card rounded-2xl col-span-2">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Users className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-xs text-muted-foreground">จำนวนนิสิต</p>
+                {isLoading ? (
+                  <Skeleton className="h-7 w-16 rounded" />
+                ) : (
+                  <p className="text-xl font-bold text-foreground">{summary?.studentCount ?? "-"} คน</p>
+                )}
+              </div>
             </div>
-            <p className="text-xs text-muted-foreground mb-1">จำนวนนิสิต</p>
-            {isLoading ? (
-              <Skeleton className="h-7 w-16 rounded" />
-            ) : (
-              <p className="text-xl font-bold text-foreground">{summary?.studentCount ?? "-"} คน</p>
-            )}
           </div>
         </div>
 
@@ -195,16 +212,6 @@ const Dashboard = () => {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground text-center">ไม่มีข้อมูล</p>
-          )}
-        </div>
-
-        {/* Total Expected */}
-        <div className="mt-6 p-4 glass-card rounded-2xl text-center">
-          <p className="text-xs text-muted-foreground mb-1">เงินที่จะเก็บทั้งหมด</p>
-          {isLoading ? (
-            <Skeleton className="h-8 w-32 mx-auto rounded" />
-          ) : (
-            <p className="text-2xl font-bold text-foreground">{formatNumber(summary?.totalExpected)} บาท</p>
           )}
         </div>
       </div>
