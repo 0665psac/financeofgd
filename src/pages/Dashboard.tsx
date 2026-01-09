@@ -1,14 +1,20 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Users, TrendingUp, DollarSign, Wallet, Receipt, RefreshCw } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, DollarSign, Wallet, Receipt, RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-import { fetchDashboardSummary, DashboardSummary } from "@/lib/googleSheets";
+import { fetchDashboardSummary, fetchMonthlyStudents, DashboardSummary, MonthlyStudentStatus } from "@/lib/googleSheets";
+import MonthDetailDialog from "@/components/MonthDetailDialog";
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  
+  // Month detail dialog state
+  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+  const [monthStudents, setMonthStudents] = useState<MonthlyStudentStatus[]>([]);
+  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -29,6 +35,21 @@ const Dashboard = () => {
   const formatNumber = (num: number | null) => {
     if (num === null) return "-";
     return num.toLocaleString("th-TH");
+  };
+
+  const handleMonthClick = async (month: string) => {
+    setSelectedMonth(month);
+    setIsLoadingMonth(true);
+    setMonthStudents([]);
+    
+    try {
+      const students = await fetchMonthlyStudents(month);
+      setMonthStudents(students);
+    } catch (error) {
+      console.error("Error loading month students:", error);
+    } finally {
+      setIsLoadingMonth(false);
+    }
   };
 
   return (
@@ -138,6 +159,7 @@ const Dashboard = () => {
         {/* Monthly Breakdown */}
         <div className="p-6 glass-card rounded-3xl">
           <h2 className="text-lg font-bold text-foreground mb-4">รายละเอียดรายเดือน</h2>
+          <p className="text-xs text-muted-foreground mb-3">คลิกที่เดือนเพื่อดูรายละเอียด</p>
           {isLoading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -149,18 +171,24 @@ const Dashboard = () => {
               {summary.monthlyData.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 bg-background/50 rounded-xl"
+                  onClick={() => handleMonthClick(item.month)}
+                  className="flex items-center justify-between p-3 bg-background/50 rounded-xl cursor-pointer hover:bg-background/80 transition-colors active:scale-[0.98]"
                 >
-                  <span className="text-sm font-medium text-foreground">{item.month}</span>
-                  <div className="flex gap-4 text-xs">
-                    <span className="text-emerald-500">
-                      +{item.collected.toLocaleString()}
-                    </span>
-                    {item.outstanding > 0 && (
-                      <span className="text-amber-500">
-                        ค้าง {item.outstanding.toLocaleString()}
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-medium text-foreground">{item.month}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-4 text-xs">
+                      <span className="text-emerald-500">
+                        +{item.collected.toLocaleString()}
                       </span>
-                    )}
+                      {item.outstanding > 0 && (
+                        <span className="text-amber-500">
+                          ค้าง {item.outstanding.toLocaleString()}
+                        </span>
+                      )}
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </div>
                 </div>
               ))}
@@ -180,6 +208,15 @@ const Dashboard = () => {
           )}
         </div>
       </div>
+
+      {/* Month Detail Dialog */}
+      <MonthDetailDialog
+        open={!!selectedMonth}
+        onOpenChange={(open) => !open && setSelectedMonth(null)}
+        month={selectedMonth || ""}
+        students={monthStudents}
+        isLoading={isLoadingMonth}
+      />
     </div>
   );
 };
