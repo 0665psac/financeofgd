@@ -194,6 +194,18 @@ export async function fetchTotalAmount(): Promise<number | null> {
   }
 }
 
+// Interface for student status in a month
+export interface MonthlyStudentStatus {
+  studentId: string;
+  studentName: string;
+  major: string;
+  week1: boolean;
+  week2: boolean;
+  week3: boolean;
+  week4: boolean;
+  weeksPaid: number;
+}
+
 // Interface for dashboard summary data
 export interface DashboardSummary {
   balance: number | null;           // เงินคงเหลือ
@@ -208,6 +220,100 @@ export interface DashboardSummary {
     outstanding: number;
     expected: number;
   }>;
+}
+
+// Fetch students data for a specific month sheet
+export async function fetchMonthlyStudents(sheetName: string): Promise<MonthlyStudentStatus[]> {
+  const range = encodeURIComponent(`'${sheetName}'!A:H`);
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
+  
+  const students: MonthlyStudentStatus[] = [];
+  
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      console.error(`Failed to fetch monthly students: ${response.statusText}`);
+      return students;
+    }
+    
+    const data = await response.json();
+    const rows: string[][] = data.values || [];
+    
+    let currentMajor = "";
+    const skipKeywords = ["ลำดับที่", "รหัสนิสิต", "จ่ายแล้ว", "จาก", "คน"];
+    
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row || row.length < 3) continue;
+      
+      const colA = (row[0] || "").trim();
+      const colB = (row[1] || "").trim();
+      const colC = (row[2] || "").trim();
+      
+      // Check if this is a major header row (column B has major name, column A is empty or has header)
+      if (colB && !colC && colB.length > 0 && !skipKeywords.some(k => colB.includes(k))) {
+        // This might be a major header - check if it looks like a name
+        const isMajorHeader = colB === "ผลิตภัณฑ์" || colB === "กราฟิก" || colB.includes("ผลิต") || colB.includes("กราฟ");
+        if (isMajorHeader) {
+          currentMajor = colB;
+          continue;
+        }
+      }
+      
+      // Also check column A for major headers
+      if (colA && !colB && !colC) {
+        const isMajorHeader = colA === "ผลิตภัณฑ์" || colA === "กราฟิก" || colA.includes("ผลิต") || colA.includes("กราฟ");
+        if (isMajorHeader) {
+          currentMajor = colA;
+          continue;
+        }
+      }
+      
+      // Skip header rows or invalid rows
+      if (skipKeywords.some(k => colB.toLowerCase().includes(k.toLowerCase()))) continue;
+      if (skipKeywords.some(k => colA.toLowerCase().includes(k.toLowerCase()))) continue;
+      
+      // Parse student row: A=ลำดับ, B=ชื่อ, C=รหัสนิสิต, D=Week1, E=Week2, F=Week3, G=Week4
+      const studentName = colB;
+      const studentIdRaw = colC;
+      
+      if (!studentIdRaw || !studentName) continue;
+      
+      // Convert student ID to number format
+      const studentId = studentIdRaw.replace(/\D/g, "");
+      if (!studentId || studentId.length < 5) continue;
+      
+      // Parse week values
+      const parseWeekValue = (value: string | undefined): boolean => {
+        if (!value) return false;
+        const trimmed = value.trim().toUpperCase();
+        return trimmed === "TRUE" || trimmed === "✓" || trimmed === "✔";
+      };
+      
+      const week1 = parseWeekValue(row[3]);
+      const week2 = parseWeekValue(row[4]);
+      const week3 = parseWeekValue(row[5]);
+      const week4 = parseWeekValue(row[6]);
+      
+      const weeksPaid = [week1, week2, week3, week4].filter(Boolean).length;
+      
+      students.push({
+        studentId,
+        studentName,
+        major: currentMajor || "ไม่ระบุสาขา",
+        week1,
+        week2,
+        week3,
+        week4,
+        weeksPaid,
+      });
+    }
+    
+    return students;
+  } catch (error) {
+    console.error("Error fetching monthly students:", error);
+    return students;
+  }
 }
 
 // Fetch dashboard summary data from "สรุปยอดเงิน" sheet
