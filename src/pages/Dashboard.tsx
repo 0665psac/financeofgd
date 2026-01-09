@@ -1,26 +1,65 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Users, TrendingUp, DollarSign, Wallet, Receipt, RefreshCw, ChevronRight, Target } from "lucide-react";
+import { ArrowLeft, Users, TrendingUp, DollarSign, Wallet, Receipt, RefreshCw, Target, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
-import { fetchDashboardSummary, fetchMonthlyStudents, DashboardSummary, MonthlyStudentStatus } from "@/lib/googleSheets";
-import MonthDetailDialog from "@/components/MonthDetailDialog";
+import { fetchDashboardSummary, fetchAllSheetsData, DashboardSummary, SheetData, isNovember68OrNewer } from "@/lib/googleSheets";
+
+interface StudentOutstanding {
+  studentId: string;
+  studentName: string;
+  totalWeeksUnpaid: number;
+  totalAmount: number;
+}
 
 const Dashboard = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   
-  // Month detail dialog state
-  const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-  const [monthStudents, setMonthStudents] = useState<MonthlyStudentStatus[]>([]);
-  const [isLoadingMonth, setIsLoadingMonth] = useState(false);
+  // Outstanding students state
+  const [outstandingStudents, setOutstandingStudents] = useState<StudentOutstanding[]>([]);
 
   const loadData = async () => {
     setIsLoading(true);
     try {
-      const data = await fetchDashboardSummary();
-      setSummary(data);
+      const [summaryData, sheetsData] = await Promise.all([
+        fetchDashboardSummary(),
+        fetchAllSheetsData()
+      ]);
+      setSummary(summaryData);
+      
+      // Calculate total outstanding per student across all months
+      const studentMap = new Map<string, StudentOutstanding>();
+      
+      for (const sheet of sheetsData) {
+        const weeklyRate = isNovember68OrNewer(sheet.sheetName) ? 40 : 30;
+        
+        for (const record of sheet.records) {
+          const weeksUnpaid = [record.week1, record.week2, record.week3, record.week4].filter(w => !w).length;
+          
+          if (weeksUnpaid > 0) {
+            const existing = studentMap.get(record.studentId);
+            if (existing) {
+              existing.totalWeeksUnpaid += weeksUnpaid;
+              existing.totalAmount += weeksUnpaid * weeklyRate;
+            } else {
+              studentMap.set(record.studentId, {
+                studentId: record.studentId,
+                studentName: record.studentName,
+                totalWeeksUnpaid: weeksUnpaid,
+                totalAmount: weeksUnpaid * weeklyRate,
+              });
+            }
+          }
+        }
+      }
+      
+      // Sort by total amount descending
+      const sortedStudents = Array.from(studentMap.values())
+        .sort((a, b) => b.totalAmount - a.totalAmount);
+      
+      setOutstandingStudents(sortedStudents);
     } catch (error) {
       console.error("Error loading dashboard data:", error);
     } finally {
@@ -35,21 +74,6 @@ const Dashboard = () => {
   const formatNumber = (num: number | null) => {
     if (num === null) return "-";
     return num.toLocaleString("th-TH");
-  };
-
-  const handleMonthClick = async (month: string) => {
-    setSelectedMonth(month);
-    setIsLoadingMonth(true);
-    setMonthStudents([]);
-    
-    try {
-      const students = await fetchMonthlyStudents(month);
-      setMonthStudents(students);
-    } catch (error) {
-      console.error("Error loading month students:", error);
-    } finally {
-      setIsLoadingMonth(false);
-    }
   };
 
   return (
@@ -173,57 +197,46 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Monthly Breakdown */}
+        {/* Outstanding Students List */}
         <div className="p-6 glass-card rounded-3xl">
-          <h2 className="text-lg font-bold text-foreground mb-4">รายละเอียดรายเดือน</h2>
-          <p className="text-xs text-muted-foreground mb-3">คลิกที่เดือนเพื่อดูรายละเอียด</p>
+          <div className="flex items-center gap-2 mb-4">
+            <AlertCircle className="w-5 h-5 text-amber-500" />
+            <h2 className="text-lg font-bold text-foreground">รายชื่อคนค้างจ่าย</h2>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">เรียงจากยอดค้างมากที่สุด</p>
+          
           {isLoading ? (
             <div className="space-y-3">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-12 w-full rounded-xl" />
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-14 w-full rounded-xl" />
               ))}
             </div>
-          ) : summary?.monthlyData && summary.monthlyData.length > 0 ? (
-            <div className="space-y-3">
-              {summary.monthlyData.map((item, index) => (
+          ) : outstandingStudents.length > 0 ? (
+            <div className="space-y-2">
+              {outstandingStudents.map((student, index) => (
                 <div
-                  key={index}
-                  onClick={() => handleMonthClick(item.month)}
-                  className="flex items-center justify-between p-3 bg-background/50 rounded-xl cursor-pointer hover:bg-background/80 transition-colors active:scale-[0.98]"
+                  key={student.studentId}
+                  className="flex items-center justify-between p-3 bg-background/50 rounded-xl"
                 >
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-foreground">{item.month}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-4 text-xs">
-                      <span className="text-emerald-500">
-                        +{item.collected.toLocaleString()}
-                      </span>
-                      {item.outstanding > 0 && (
-                        <span className="text-amber-500">
-                          ค้าง {item.outstanding.toLocaleString()}
-                        </span>
-                      )}
+                    <span className="text-xs text-muted-foreground w-6">{index + 1}.</span>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{student.studentName}</p>
+                      <p className="text-xs text-muted-foreground">{student.studentId}</p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
+                    <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground text-center">ไม่มีข้อมูล</p>
+            <p className="text-sm text-muted-foreground text-center py-4">🎉 ไม่มีคนค้างจ่าย</p>
           )}
         </div>
       </div>
-
-      {/* Month Detail Dialog */}
-      <MonthDetailDialog
-        open={!!selectedMonth}
-        onOpenChange={(open) => !open && setSelectedMonth(null)}
-        month={selectedMonth || ""}
-        students={monthStudents}
-        isLoading={isLoadingMonth}
-      />
     </div>
   );
 };
