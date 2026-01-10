@@ -1,6 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, RefreshCw, Wallet } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -10,15 +9,22 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { logSearchHistory } from "@/lib/searchCounter";
-import { fetchTotalAmount } from "@/lib/googleSheets";
+import { fetchTotalAmount, fetchAllSheetsData, isNovember68OrNewer } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
   clearSearchHistory,
 } from "@/lib/localStorage";
 
+interface StudentPaymentStatus {
+  studentId: string;
+  studentName: string;
+  totalWeeksUnpaid: number;
+  totalAmount: number;
+  isPaidAll: boolean;
+}
+
 const Index = () => {
-  const navigate = useNavigate();
   const [studentId, setStudentId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -27,39 +33,63 @@ const Index = () => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
   const [isTotalLoading, setIsTotalLoading] = useState(true);
+  const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
+  const [isStudentsLoading, setIsStudentsLoading] = useState(true);
   const { toast } = useToast();
-
-  // Secret dashboard access: triple click within 3 seconds
-  const clickTimesRef = useRef<number[]>([]);
-  
-  const handleTotalAmountClick = () => {
-    const now = Date.now();
-    clickTimesRef.current.push(now);
-    
-    // Keep only clicks within the last 3 seconds
-    clickTimesRef.current = clickTimesRef.current.filter(
-      (time) => now - time < 3000
-    );
-    
-    // Navigate to dashboard if 3 clicks within 3 seconds
-    if (clickTimesRef.current.length >= 3) {
-      clickTimesRef.current = [];
-      navigate("/dashboard");
-    }
-  };
 
   useEffect(() => {
     setHistory(getSearchHistory());
-    
-    // Fetch total amount on load
-    const loadTotalAmount = async () => {
-      setIsTotalLoading(true);
-      const amount = await fetchTotalAmount();
-      setTotalAmount(amount);
-      setIsTotalLoading(false);
-    };
-    loadTotalAmount();
+    loadData();
   }, []);
+
+  const loadData = async () => {
+    setIsTotalLoading(true);
+    setIsStudentsLoading(true);
+    try {
+      const [amount, sheetsData] = await Promise.all([
+        fetchTotalAmount(),
+        fetchAllSheetsData()
+      ]);
+      setTotalAmount(amount);
+      
+      // Calculate total outstanding per student across all months
+      const studentMap = new Map<string, StudentPaymentStatus>();
+      
+      for (const sheet of sheetsData) {
+        const weeklyRate = isNovember68OrNewer(sheet.sheetName) ? 40 : 30;
+        
+        for (const record of sheet.records) {
+          const weeksUnpaid = [record.week1, record.week2, record.week3, record.week4].filter(w => !w).length;
+          
+          const existing = studentMap.get(record.studentId);
+          if (existing) {
+            existing.totalWeeksUnpaid += weeksUnpaid;
+            existing.totalAmount += weeksUnpaid * weeklyRate;
+            if (weeksUnpaid > 0) existing.isPaidAll = false;
+          } else {
+            studentMap.set(record.studentId, {
+              studentId: record.studentId,
+              studentName: record.studentName,
+              totalWeeksUnpaid: weeksUnpaid,
+              totalAmount: weeksUnpaid * weeklyRate,
+              isPaidAll: weeksUnpaid === 0,
+            });
+          }
+        }
+      }
+      
+      // Sort by total amount descending (outstanding first, then paid)
+      const sortedStudents = Array.from(studentMap.values())
+        .sort((a, b) => b.totalAmount - a.totalAmount);
+      
+      setAllStudents(sortedStudents);
+    } catch (error) {
+      console.error("Error loading data:", error);
+    } finally {
+      setIsTotalLoading(false);
+      setIsStudentsLoading(false);
+    }
+  };
 
   const handleSearch = async (id?: string) => {
     const searchId = (id || studentId).trim();
@@ -110,15 +140,7 @@ const Index = () => {
 
   const handleRefreshData = async () => {
     clearCache();
-    setIsTotalLoading(true);
-    try {
-      const amount = await fetchTotalAmount();
-      setTotalAmount(amount);
-    } catch (error) {
-      console.error("Error refreshing total amount:", error);
-    } finally {
-      setIsTotalLoading(false);
-    }
+    await loadData();
     toast({
       title: "รีเฟรชข้อมูลแล้ว",
       description: "ระบบจะดึงข้อมูลใหม่ในการค้นหาครั้งถัดไป",
@@ -145,10 +167,7 @@ const Index = () => {
         </header>
 
         {/* Total Amount Display - Glassmorphism */}
-        <div 
-          className="mb-6 p-6 glass-card rounded-3xl cursor-pointer select-none"
-          onClick={handleTotalAmountClick}
-        >
+        <div className="mb-6 p-6 glass-card rounded-3xl">
           <div className="flex items-center justify-center gap-2">
             <div className="w-8 h-8 rounded-full gradient-success flex items-center justify-center">
               <Wallet className="w-4 h-4 text-white" />
@@ -241,6 +260,54 @@ const Index = () => {
         {result && !isLoading && (
           <ResultCard result={result} studentId={searchedId} />
         )}
+
+        {/* Payment Status Section */}
+        <div className="mt-6 p-5 glass-card rounded-3xl">
+          <div className="flex items-center gap-2 mb-3">
+            <Users className="w-5 h-5 text-primary" />
+            <h2 className="text-base font-bold text-foreground">สถานะการชำระเงิน</h2>
+          </div>
+          <p className="text-xs text-muted-foreground mb-3">เรียงจากยอดค้างมากที่สุด</p>
+          
+          {isStudentsLoading ? (
+            <div className="space-y-2">
+              {[1, 2, 3, 4, 5].map((i) => (
+                <Skeleton key={i} className="h-12 w-full rounded-xl" />
+              ))}
+            </div>
+          ) : allStudents.length > 0 ? (
+            <div className="space-y-2 max-h-80 overflow-y-auto">
+              {allStudents.map((student, index) => (
+                <div
+                  key={student.studentId}
+                  className={`flex items-center justify-between p-3 rounded-xl ${
+                    student.isPaidAll ? 'bg-emerald-500/10' : 'bg-background/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground w-5">{index + 1}.</span>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">{student.studentName}</p>
+                      <p className="text-xs text-muted-foreground">{student.studentId}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    {student.isPaidAll ? (
+                      <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
+                    ) : (
+                      <>
+                        <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
+                        <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
+          )}
+        </div>
       </div>
     </div>
   );
