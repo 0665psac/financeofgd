@@ -1,4 +1,4 @@
-import { Gift, AlertCircle, XCircle, ExternalLink } from "lucide-react";
+import { Gift, AlertCircle, XCircle, ExternalLink, ChevronDown } from "lucide-react";
 import GiftBox3D from "@/assets/gift-box-3d.png";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
@@ -8,6 +8,7 @@ import {
   Dialog,
   DialogContent,
 } from "./ui/dialog";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 
 // Preload gift box image on module load
 const preloadGiftImage = () => {
@@ -39,6 +40,64 @@ interface SearchResult {
   paidAmount?: number;
   monthDetails?: MonthDetail[];
 }
+
+// Monthly Details Collapsible Component
+const MonthlyDetailsCollapsible = ({ monthDetails }: { monthDetails?: MonthDetail[] }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  if (!monthDetails || monthDetails.length === 0) return null;
+  
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className="w-full">
+        <div className="flex items-center justify-between py-2">
+          <p className="text-sm font-medium text-muted-foreground">รายละเอียดแต่ละเดือน</p>
+          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </div>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="space-y-3">
+          {monthDetails.map((month, index) => (
+            <div
+              key={month.monthName}
+              className="p-4 bg-muted/30 rounded-2xl animate-fade-in backdrop-blur-sm"
+              style={{ animationDelay: `${index * 100}ms` }}
+            >
+              <div className="flex justify-between items-start mb-2">
+                <div>
+                  <p className="font-medium text-foreground">{month.monthName}</p>
+                  <p className="text-xs text-muted-foreground">
+                    ต้องชำระ {month.pricePerWeek} บาท/สัปดาห์
+                  </p>
+                </div>
+                <p className="font-bold font-kanit gradient-danger-text text-lg">
+                  {month.totalAmount.toLocaleString()} บาท
+                </p>
+              </div>
+              <div className="flex gap-1.5 flex-wrap">
+                {[1, 2, 3, 4].map((week) => {
+                  const isUnpaid = month.unpaidWeeks.includes(week);
+                  return (
+                    <span
+                      key={week}
+                      className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                        isUnpaid
+                          ? "gradient-danger text-white"
+                          : "gradient-success text-white"
+                      }`}
+                    >
+                      W{week} {isUnpaid ? "❌️" : "✅️"}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
 
 interface ResultCardProps {
   result: SearchResult;
@@ -196,46 +255,8 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           </Button>
         </div>
 
-        {/* Monthly Details */}
-        <div className="space-y-3">
-          <p className="text-sm font-medium text-muted-foreground">รายละเอียดแต่ละเดือน</p>
-          {result.monthDetails?.map((month, index) => (
-            <div
-              key={month.monthName}
-              className="p-4 bg-muted/30 rounded-2xl animate-fade-in backdrop-blur-sm"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-medium text-foreground">{month.monthName}</p>
-                  <p className="text-xs text-muted-foreground">
-                    ต้องชำระ {month.pricePerWeek} บาท/สัปดาห์
-                  </p>
-                </div>
-                <p className="font-bold font-kanit gradient-danger-text text-lg">
-                  {month.totalAmount.toLocaleString()} บาท
-                </p>
-              </div>
-              <div className="flex gap-1.5 flex-wrap">
-                {[1, 2, 3, 4].map((week) => {
-                  const isUnpaid = month.unpaidWeeks.includes(week);
-                  return (
-                    <span
-                      key={week}
-                      className={`text-xs px-3 py-1.5 rounded-full font-medium ${
-                        isUnpaid
-                          ? "gradient-danger text-white"
-                          : "gradient-success text-white"
-                      }`}
-                    >
-                      W{week} {isUnpaid ? "❌️" : "✅️"}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
+        {/* Monthly Details - Collapsible */}
+        <MonthlyDetailsCollapsible monthDetails={result.monthDetails} />
       </CardContent>
     </Card>
   );
