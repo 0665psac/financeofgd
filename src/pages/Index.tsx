@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronDown } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +36,7 @@ const Index = () => {
   const [isTotalLoading, setIsTotalLoading] = useState(true);
   const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
+  const [isPaymentStatusOpen, setIsPaymentStatusOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -263,52 +265,62 @@ const Index = () => {
 
         {/* Payment Status Section - Only show after search */}
         {result && !isLoading && (
-          <div className="mt-6 p-5 glass-card rounded-3xl">
-            <div className="flex items-center gap-2 mb-3">
-              <Users className="w-5 h-5 text-primary" />
-              <h2 className="text-base font-bold text-foreground">สถานะการชำระเงิน</h2>
-            </div>
-            <p className="text-xs text-muted-foreground mb-3">เรียงจากยอดค้างมากที่สุด</p>
-            
-            {isStudentsLoading ? (
-              <div className="space-y-2">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <Skeleton key={i} className="h-12 w-full rounded-xl" />
-                ))}
-              </div>
-            ) : allStudents.length > 0 ? (
-              <div className="space-y-2 max-h-80 overflow-y-auto">
-                {allStudents.map((student, index) => (
-                  <div
-                    key={student.studentId}
-                    className={`flex items-center justify-between p-3 rounded-xl ${
-                      student.isPaidAll ? 'bg-emerald-500/10' : 'bg-background/50'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground w-5">{index + 1}.</span>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">{student.studentName}</p>
-                        <p className="text-xs text-muted-foreground">{student.studentId}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      {student.isPaidAll ? (
-                        <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
-                      ) : (
-                        <>
-                          <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
-                          <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
-                        </>
-                      )}
-                    </div>
+          <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen}>
+            <div className="mt-6 p-4 glass-card rounded-3xl">
+              <CollapsibleTrigger className="w-full">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-5 h-5 text-primary" />
+                    <h2 className="text-base font-bold text-foreground">สถานะการชำระเงิน</h2>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
-            )}
-          </div>
+                  <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
+                </div>
+              </CollapsibleTrigger>
+              
+              <CollapsibleContent>
+                <p className="text-xs text-muted-foreground mt-3 mb-3">เรียงจากยอดค้างมากที่สุด</p>
+                
+                {isStudentsLoading ? (
+                  <div className="space-y-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                    ))}
+                  </div>
+                ) : allStudents.length > 0 ? (
+                  <div className="space-y-2 max-h-80 overflow-y-auto">
+                    {allStudents.map((student, index) => (
+                      <div
+                        key={student.studentId}
+                        className={`flex items-center justify-between p-3 rounded-xl ${
+                          student.isPaidAll ? 'bg-emerald-500/10' : 'bg-background/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-muted-foreground w-5">{index + 1}.</span>
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{student.studentName}</p>
+                            <p className="text-xs text-muted-foreground">{student.studentId}</p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          {student.isPaidAll ? (
+                            <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
+                          ) : (
+                            <>
+                              <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
+                              <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
+                )}
+              </CollapsibleContent>
+            </div>
+          </Collapsible>
         )}
       </div>
     </div>
