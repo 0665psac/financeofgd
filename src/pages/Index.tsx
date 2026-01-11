@@ -279,11 +279,23 @@ const Index = () => {
               
               <CollapsibleContent>
                 {/* Summary */}
-                <div className="mt-3 p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
-                  <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
-                  <span className="text-base font-bold text-amber-500">
-                    {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
-                  </span>
+                <div className="mt-3 space-y-2">
+                  <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
+                    <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
+                    <span className="text-base font-bold text-amber-500">
+                      {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
+                    </span>
+                  </div>
+                  <div className="flex gap-2">
+                    <div className="flex-1 p-3 rounded-xl bg-red-500/10 text-center">
+                      <p className="text-lg font-bold text-red-500">{allStudents.filter(s => !s.isPaidAll).length}</p>
+                      <p className="text-xs text-muted-foreground">ยังค้างชำระ</p>
+                    </div>
+                    <div className="flex-1 p-3 rounded-xl bg-emerald-500/10 text-center">
+                      <p className="text-lg font-bold text-emerald-500">{allStudents.filter(s => s.isPaidAll).length}</p>
+                      <p className="text-xs text-muted-foreground">จ่ายครบแล้ว</p>
+                    </div>
+                  </div>
                 </div>
                 
                 <p className="text-xs text-muted-foreground mt-3 mb-3">เรียงจากยอดค้างมากที่สุด</p>
