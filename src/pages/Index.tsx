@@ -270,7 +270,7 @@ const Index = () => {
               <CollapsibleTrigger className="w-full">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-primary" />
+                    <Users className="w-5 h-5 text-amber-500" />
                     <h2 className="text-base font-bold text-foreground">สถานะการชำระเงินทั้งหมด</h2>
                   </div>
                   <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
