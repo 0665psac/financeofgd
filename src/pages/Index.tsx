@@ -271,13 +271,21 @@ const Index = () => {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Users className="w-5 h-5 text-primary" />
-                    <h2 className="text-base font-bold text-foreground">สถานะการชำระเงิน</h2>
+                    <h2 className="text-base font-bold text-foreground">สถานะการชำระเงินทั้งหมด</h2>
                   </div>
                   <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
                 </div>
               </CollapsibleTrigger>
               
               <CollapsibleContent>
+                {/* Summary */}
+                <div className="mt-3 p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
+                  <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
+                  <span className="text-base font-bold text-amber-500">
+                    {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
+                  </span>
+                </div>
+                
                 <p className="text-xs text-muted-foreground mt-3 mb-3">เรียงจากยอดค้างมากที่สุด</p>
                 
                 {isStudentsLoading ? (
