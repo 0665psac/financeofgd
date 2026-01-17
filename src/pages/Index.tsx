@@ -143,9 +143,15 @@ const Index = () => {
   const handleRefreshData = async () => {
     clearCache();
     await loadData();
+    
+    // Re-search if there's an existing search result
+    if (searchedId) {
+      await handleSearch(searchedId);
+    }
+    
     toast({
       title: "รีเฟรชข้อมูลแล้ว",
-      description: "ระบบจะดึงข้อมูลใหม่ในการค้นหาครั้งถัดไป",
+      description: "อัพเดตข้อมูลทั้งหมดเรียบร้อยแล้ว",
     });
   };
 
