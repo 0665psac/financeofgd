@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronDown } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronDown, Clock } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ const Index = () => {
   const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
   const [isPaymentStatusOpen, setIsPaymentStatusOpen] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -85,6 +86,7 @@ const Index = () => {
         .sort((a, b) => b.totalAmount - a.totalAmount);
       
       setAllStudents(sortedStudents);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -193,6 +195,12 @@ const Index = () => {
               <span className="text-sm text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
             )}
           </div>
+          {lastUpdated && (
+            <div className="flex items-center justify-center gap-1 mt-3 text-xs text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              <span>อัพเดตล่าสุด: {lastUpdated.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' })} น.</span>
+            </div>
+          )}
         </div>
 
         {/* Search Form - Floating Pill with Dropdown */}
