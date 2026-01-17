@@ -103,7 +103,9 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
       monthDetails,
     };
   } catch (error) {
-    console.error("Error searching student:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error searching student:", error);
+    }
     throw error;
   }
 }
