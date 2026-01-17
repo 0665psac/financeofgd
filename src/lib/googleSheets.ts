@@ -1,5 +1,4 @@
-const API_KEY = "AIzaSyDgVQ91OU-BBthsYGKtCYAOg-8EPQKlrkw";
-const SPREADSHEET_ID = "1luO33qY0EXsl0xQHX3grA6ayemyHiIjTx4TsNEWjwB4";
+import { supabase } from "@/integrations/supabase/client";
 
 // Sheet name pattern: "เดือน (ปี)" e.g., "พฤศจิกายน (68)"
 const SHEET_NAME_PATTERN = /^(.+?)\s*\((\d+)\)$/;
@@ -65,16 +64,23 @@ export function getMonthSortOrder(sheetName: string): number {
   return year * 100 + monthIndex;
 }
 
+// Call the Edge Function to fetch data
+async function callSheetsProxy(action: string, sheetName?: string, range?: string) {
+  const { data, error } = await supabase.functions.invoke("google-sheets-proxy", {
+    body: { action, sheetName, range },
+  });
+
+  if (error) {
+    throw new Error(`Failed to call sheets proxy: ${error.message}`);
+  }
+
+  return data;
+}
+
 // Fetch all sheet names from the spreadsheet
 async function fetchSheetNames(): Promise<string[]> {
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}?key=${API_KEY}&fields=sheets.properties.title`;
+  const data = await callSheetsProxy("fetchSheetNames");
   
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch sheet names: ${response.statusText}`);
-  }
-  
-  const data = await response.json();
   const sheetNames: string[] = data.sheets
     .map((sheet: { properties: { title: string } }) => sheet.properties.title)
     .filter((name: string) => SHEET_NAME_PATTERN.test(name));
@@ -84,16 +90,7 @@ async function fetchSheetNames(): Promise<string[]> {
 
 // Fetch data from a specific sheet
 async function fetchSheetData(sheetName: string): Promise<SheetRecord[]> {
-  // Fetch columns B, C, D, E, F, G
-  const range = encodeURIComponent(`'${sheetName}'!B:G`);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
-  
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to fetch sheet data: ${response.statusText}`);
-  }
-  
-  const data = await response.json();
+  const data = await callSheetsProxy("fetchSheetData", sheetName);
   const rows: string[][] = data.values || [];
   
   // Skip header row and filter invalid rows
@@ -148,7 +145,9 @@ export async function fetchAllSheetsData(): Promise<SheetData[]> {
         allData.push({ sheetName, records });
       }
     } catch (error) {
-      console.error(`Error fetching sheet "${sheetName}":`, error);
+      if (import.meta.env.DEV) {
+        console.error(`Error fetching sheet "${sheetName}":`, error);
+      }
     }
   }
   
@@ -160,17 +159,8 @@ export async function fetchAllSheetsData(): Promise<SheetData[]> {
 
 // Fetch total amount from "สรุปยอดเงิน" sheet - find "เงินคงเหลือ" in column A and get value from column B
 export async function fetchTotalAmount(): Promise<number | null> {
-  const range = encodeURIComponent("'สรุปยอดเงิน'!A:B");
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
-  
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error(`Failed to fetch total amount: ${response.statusText}`);
-      return null;
-    }
-    
-    const data = await response.json();
+    const data = await callSheetsProxy("fetchRange", undefined, "'สรุปยอดเงิน'!A:B");
     const rows: string[][] = data.values || [];
     
     // Find row where column A contains "เงินคงเหลือ"
@@ -186,10 +176,11 @@ export async function fetchTotalAmount(): Promise<number | null> {
       }
     }
     
-    console.error("Could not find 'เงินคงเหลือ' in column A");
     return null;
   } catch (error) {
-    console.error("Error fetching total amount:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error fetching total amount:", error);
+    }
     return null;
   }
 }
@@ -224,19 +215,10 @@ export interface DashboardSummary {
 
 // Fetch students data for a specific month sheet
 export async function fetchMonthlyStudents(sheetName: string): Promise<MonthlyStudentStatus[]> {
-  const range = encodeURIComponent(`'${sheetName}'!A:H`);
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
-  
   const students: MonthlyStudentStatus[] = [];
   
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error(`Failed to fetch monthly students: ${response.statusText}`);
-      return students;
-    }
-    
-    const data = await response.json();
+    const data = await callSheetsProxy("fetchRange", undefined, `'${sheetName}'!A:H`);
     const rows: string[][] = data.values || [];
     
     let currentMajor = "";
@@ -311,16 +293,15 @@ export async function fetchMonthlyStudents(sheetName: string): Promise<MonthlySt
     
     return students;
   } catch (error) {
-    console.error("Error fetching monthly students:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error fetching monthly students:", error);
+    }
     return students;
   }
 }
 
 // Fetch dashboard summary data from "สรุปยอดเงิน" sheet
 export async function fetchDashboardSummary(): Promise<DashboardSummary> {
-  const range = encodeURIComponent("'สรุปยอดเงิน'!A:O");
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${SPREADSHEET_ID}/values/${range}?key=${API_KEY}`;
-  
   const summary: DashboardSummary = {
     balance: null,
     totalCollected: null,
@@ -332,13 +313,7 @@ export async function fetchDashboardSummary(): Promise<DashboardSummary> {
   };
   
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      console.error(`Failed to fetch dashboard summary: ${response.statusText}`);
-      return summary;
-    }
-    
-    const data = await response.json();
+    const data = await callSheetsProxy("fetchRange", undefined, "'สรุปยอดเงิน'!A:O");
     const rows: string[][] = data.values || [];
     
     const parseNumber = (value: string | undefined): number | null => {
@@ -399,7 +374,9 @@ export async function fetchDashboardSummary(): Promise<DashboardSummary> {
     
     return summary;
   } catch (error) {
-    console.error("Error fetching dashboard summary:", error);
+    if (import.meta.env.DEV) {
+      console.error("Error fetching dashboard summary:", error);
+    }
     return summary;
   }
 }
