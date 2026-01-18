@@ -54,9 +54,6 @@ function getClientIP(req: Request): string {
          "unknown";
 }
 
-// Google Apps Script Web App URL for logging search history
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx4vIcOuDmfNzQUePMRE_FXcuBW4Q-LQHzB2wTkiSmGIdBkBsmjftyeXXv_VvJqhrLn/exec";
-
 interface RequestBody {
   studentId: string;
   studentName: string;
@@ -90,6 +87,16 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
+    const APPS_SCRIPT_URL = Deno.env.get("APPS_SCRIPT_URL");
+    
+    if (!APPS_SCRIPT_URL) {
+      console.error("APPS_SCRIPT_URL not configured");
+      return new Response(
+        JSON.stringify({ error: "Apps Script URL not configured" }),
+        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
     const body: RequestBody = await req.json();
     const { studentId, studentName } = body;
 
@@ -100,7 +107,7 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log(`Logging search history for: ${studentId} - ${studentName}`);
+    console.log("Logging search history");
 
     // Forward request to Google Apps Script
     await fetch(APPS_SCRIPT_URL, {
