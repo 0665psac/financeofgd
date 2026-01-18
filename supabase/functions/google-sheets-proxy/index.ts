@@ -54,6 +54,8 @@ function getClientIP(req: Request): string {
          "unknown";
 }
 
+const SPREADSHEET_ID = "1luO33qY0EXsl0xQHX3grA6ayemyHiIjTx4TsNEWjwB4";
+
 interface RequestBody {
   action: "fetchSheetNames" | "fetchSheetData" | "fetchRange";
   sheetName?: string;
@@ -89,20 +91,11 @@ serve(async (req: Request): Promise<Response> => {
 
   try {
     const API_KEY = Deno.env.get("GOOGLE_SHEETS_API_KEY");
-    const SPREADSHEET_ID = Deno.env.get("GOOGLE_SPREADSHEET_ID");
     
     if (!API_KEY) {
       console.error("GOOGLE_SHEETS_API_KEY not configured");
       return new Response(
         JSON.stringify({ error: "API key not configured" }),
-        { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    if (!SPREADSHEET_ID) {
-      console.error("GOOGLE_SPREADSHEET_ID not configured");
-      return new Response(
-        JSON.stringify({ error: "Spreadsheet ID not configured" }),
         { status: 500, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -146,13 +139,13 @@ serve(async (req: Request): Promise<Response> => {
         );
     }
 
-    console.log(`Fetching: ${action}`);
+    console.log(`Fetching: ${action}${sheetName ? ` for sheet: ${sheetName}` : ""}${range ? ` with range: ${range}` : ""}`);
 
     const response = await fetch(url);
     
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`Google Sheets API error: ${response.status}`);
+      console.error(`Google Sheets API error: ${response.status} - ${errorText}`);
       return new Response(
         JSON.stringify({ error: "Failed to fetch data from Google Sheets" }),
         { status: response.status, headers: { "Content-Type": "application/json", ...corsHeaders } }
