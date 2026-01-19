@@ -1,7 +1,12 @@
-const HISTORY_KEY = "student_search_history";
+const HISTORY_KEY = "student_search_history_v2";
 const MAX_HISTORY = 5;
 
-export function getSearchHistory(): string[] {
+export interface SearchHistoryItem {
+  studentId: string;
+  studentName: string;
+}
+
+export function getSearchHistory(): SearchHistoryItem[] {
   try {
     const stored = localStorage.getItem(HISTORY_KEY);
     return stored ? JSON.parse(stored) : [];
@@ -10,15 +15,15 @@ export function getSearchHistory(): string[] {
   }
 }
 
-export function addToSearchHistory(studentId: string): void {
+export function addToSearchHistory(studentId: string, studentName: string): void {
   try {
     const history = getSearchHistory();
     
     // Remove if already exists (to move to front)
-    const filtered = history.filter((id) => id !== studentId);
+    const filtered = history.filter((item) => item.studentId !== studentId);
     
     // Add to front
-    filtered.unshift(studentId);
+    filtered.unshift({ studentId, studentName });
     
     // Keep only last MAX_HISTORY items
     const trimmed = filtered.slice(0, MAX_HISTORY);

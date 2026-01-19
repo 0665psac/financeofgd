@@ -1,8 +1,9 @@
 import { History, X } from "lucide-react";
 import { Button } from "./ui/button";
+import { SearchHistoryItem } from "@/lib/localStorage";
 
 interface SearchHistoryProps {
-  history: string[];
+  history: SearchHistoryItem[];
   onSelect: (studentId: string) => void;
   onClear: () => void;
 }
@@ -33,22 +34,25 @@ const SearchHistory = ({ history, onSelect, onClear }: SearchHistoryProps) => {
           </Button>
         </div>
         <div className="flex flex-col gap-1">
-          {history.map((studentId) => (
+          {history.map((item) => (
             <button
-              key={studentId}
+              key={item.studentId}
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onSelect(studentId);
+                onSelect(item.studentId);
               }}
               className="w-full text-left px-3 py-2.5 text-sm rounded-xl
                          hover:bg-primary/10 hover:text-primary
-                         transition-all duration-200 flex items-center gap-2"
+                         transition-all duration-200 flex items-center gap-3"
             >
-              <span className="w-6 h-6 rounded-full bg-muted flex items-center justify-center text-xs">
-                🔍
+              <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs">
+                👤
               </span>
-              <span className="font-medium">{studentId}</span>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-foreground truncate">{item.studentName}</p>
+                <p className="text-xs text-muted-foreground">{item.studentId}</p>
+              </div>
             </button>
           ))}
         </div>

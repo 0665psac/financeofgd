@@ -15,6 +15,7 @@ import {
   getSearchHistory,
   addToSearchHistory,
   clearSearchHistory,
+  SearchHistoryItem,
 } from "@/lib/localStorage";
 
 interface StudentPaymentStatus {
@@ -30,7 +31,7 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
   const [searchedId, setSearchedId] = useState("");
-  const [history, setHistory] = useState<string[]>([]);
+  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
   const [isTotalLoading, setIsTotalLoading] = useState(true);
@@ -105,14 +106,12 @@ const Index = () => {
       setResult(searchResult);
       setSearchedId(searchId);
 
-      // Log search history to Google Sheet (only if student found)
+      // Log search history to Google Sheet and save to local history (only if student found)
       if (searchResult.found && searchResult.studentName) {
         logSearchHistory(searchId, searchResult.studentName);
+        addToSearchHistory(searchId, searchResult.studentName);
+        setHistory(getSearchHistory());
       }
-
-      // Save to history
-      addToSearchHistory(searchId);
-      setHistory(getSearchHistory());
     } catch (error) {
       console.error("Search error:", error);
       toast({
