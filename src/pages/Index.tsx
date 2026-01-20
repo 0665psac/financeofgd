@@ -1,4 +1,4 @@
-import { useState, useEffect, FormEvent, useRef } from "react";
+import { useState, useEffect, FormEvent } from "react";
 import { Search, RefreshCw, Wallet, Users, ChevronDown } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,31 @@ import {
   clearSearchHistory,
   SearchHistoryItem,
 } from "@/lib/localStorage";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+// Prefixes for student ID expansion
+const STUDENT_ID_PREFIXES = ["68106100", "68106700"];
+
+// Expand short input (1-3 digits) to possible full student IDs
+function expandShortInput(input: string): string[] {
+  const trimmed = input.trim().replace(/\D/g, "");
+  
+  // Only expand if 1-3 digits
+  if (trimmed.length < 1 || trimmed.length > 3) {
+    return [trimmed];
+  }
+  
+  // Pad with leading zeros to make it 2 digits
+  const padded = trimmed.padStart(2, "0");
+  
+  // Generate possible full IDs with all prefixes
+  return STUDENT_ID_PREFIXES.map(prefix => prefix + padded);
+}
 
 interface StudentPaymentStatus {
   studentId: string;
@@ -38,6 +63,8 @@ const Index = () => {
   const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
   const [isPaymentStatusOpen, setIsPaymentStatusOpen] = useState(false);
+  const [disambiguationOptions, setDisambiguationOptions] = useState<{ id: string; name: string }[]>([]);
+  const [showDisambiguation, setShowDisambiguation] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -124,9 +151,45 @@ const Index = () => {
     }
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    handleSearch();
+    const input = studentId.trim().replace(/\D/g, "");
+    
+    // If input is 1-3 digits, expand to possible full IDs
+    if (input.length >= 1 && input.length <= 3) {
+      const possibleIds = expandShortInput(input);
+      
+      // Find which IDs actually exist in our data
+      const validOptions: { id: string; name: string }[] = [];
+      for (const possibleId of possibleIds) {
+        const student = allStudents.find(s => s.studentId === possibleId);
+        if (student) {
+          validOptions.push({ id: student.studentId, name: student.studentName });
+        }
+      }
+      
+      if (validOptions.length === 0) {
+        // No matches found, try searching with the first expanded ID
+        handleSearch(possibleIds[0]);
+      } else if (validOptions.length === 1) {
+        // Only one match, search directly
+        setStudentId(validOptions[0].id);
+        handleSearch(validOptions[0].id);
+      } else {
+        // Multiple matches, show disambiguation dialog
+        setDisambiguationOptions(validOptions);
+        setShowDisambiguation(true);
+      }
+    } else {
+      // Full ID entered, search directly
+      handleSearch();
+    }
+  };
+
+  const handleDisambiguationSelect = (id: string) => {
+    setShowDisambiguation(false);
+    setStudentId(id);
+    handleSearch(id);
   };
 
   const handleHistorySelect = (id: string) => {
@@ -347,6 +410,28 @@ const Index = () => {
             </div>
           </Collapsible>
         )}
+
+        {/* Disambiguation Dialog */}
+        <Dialog open={showDisambiguation} onOpenChange={setShowDisambiguation}>
+          <DialogContent className="max-w-sm glass-card border-0">
+            <DialogHeader>
+              <DialogTitle className="text-center">เลือกรหัสนิสิต</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-2 mt-4">
+              {disambiguationOptions.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => handleDisambiguationSelect(option.id)}
+                  className="w-full p-4 rounded-xl bg-background/50 hover:bg-primary/10 
+                           transition-all duration-200 text-left border border-border/50 hover:border-primary/30"
+                >
+                  <p className="font-medium text-foreground">{option.name}</p>
+                  <p className="text-sm text-muted-foreground">{option.id}</p>
+                </button>
+              ))}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
