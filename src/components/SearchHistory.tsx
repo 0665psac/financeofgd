@@ -1,4 +1,4 @@
-import { History, X } from "lucide-react";
+import { History, X, User } from "lucide-react";
 import { Button } from "./ui/button";
 import { SearchHistoryItem } from "@/lib/localStorage";
 
@@ -46,8 +46,8 @@ const SearchHistory = ({ history, onSelect, onClear }: SearchHistoryProps) => {
                          hover:bg-primary/10 hover:text-primary
                          transition-all duration-200 flex items-center gap-3"
             >
-              <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center text-xs">
-                👤
+              <span className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center">
+                <User className="w-4 h-4 text-primary" />
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-foreground truncate">{item.studentName}</p>
