@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronDown } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronDown, Lightbulb } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -27,13 +27,14 @@ import {
 // Prefixes for student ID expansion
 const STUDENT_ID_PREFIXES = ["68106100", "68106700"];
 
-// Expand short input (1-3 digits) to possible full student IDs
+// Expand short input (1-3 digits, including leading zeros like 02, 002, 016) to possible full student IDs
 function expandShortInput(input: string): string[] {
-  const trimmed = input.trim().replace(/\D/g, "");
+  const trimmed = input.trim();
   
-  // Only expand if 1-3 digits
-  if (trimmed.length < 1 || trimmed.length > 3) {
-    return [trimmed];
+  // Check if it's a short input (1-3 characters that are all digits)
+  if (!/^\d{1,3}$/.test(trimmed)) {
+    // Not a 1-3 digit input, return as-is (remove non-digits)
+    return [trimmed.replace(/\D/g, "")];
   }
   
   // Pad with leading zeros to make it 2 digits
@@ -308,8 +309,9 @@ const Index = () => {
 
           {/* Hint for short ID search - show only when no history */}
           {history.length === 0 && (
-            <p className="text-xs text-muted-foreground text-center mt-3">
-              💡 พิมพ์แค่ 1-3 ตัวเลขท้ายได้เลย เช่น พิมพ์ "5" จะค้นหา ...05
+            <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1.5">
+              <Lightbulb className="w-3.5 h-3.5" />
+              <span>สามารถกรอกรหัสนิสิตแค่ 1-3 ตัวท้ายได้เลย</span>
             </p>
           )}
         </form>
