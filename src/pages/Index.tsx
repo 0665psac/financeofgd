@@ -305,6 +305,13 @@ const Index = () => {
               />
             )}
           </div>
+
+          {/* Hint for short ID search - show only when no history */}
+          {history.length === 0 && (
+            <p className="text-xs text-muted-foreground text-center mt-3">
+              💡 พิมพ์แค่ 1-3 ตัวเลขท้ายได้เลย เช่น พิมพ์ "5" จะค้นหา ...05
+            </p>
+          )}
         </form>
 
         {/* Loading State - Glassmorphism */}
@@ -413,7 +420,7 @@ const Index = () => {
 
         {/* Disambiguation Dialog */}
         <Dialog open={showDisambiguation} onOpenChange={setShowDisambiguation}>
-          <DialogContent className="max-w-sm glass-card border-0">
+          <DialogContent className="w-[calc(100%-3rem)] max-w-sm glass-card border-0 rounded-3xl mx-auto">
             <DialogHeader>
               <DialogTitle className="text-center">เลือกรหัสนิสิต</DialogTitle>
             </DialogHeader>
