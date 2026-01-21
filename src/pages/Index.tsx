@@ -27,18 +27,21 @@ import {
 // Prefixes for student ID expansion
 const STUDENT_ID_PREFIXES = ["68106100", "68106700"];
 
-// Expand short input (exactly 3 digits) to possible full student IDs
+// Expand short input (1-3 digits, including leading zeros like 02, 002, 016) to possible full student IDs
 function expandShortInput(input: string): string[] {
   const trimmed = input.trim();
   
-  // Check if it's exactly 3 digits
-  if (!/^\d{3}$/.test(trimmed)) {
-    // Not a 3 digit input, return as-is (remove non-digits)
+  // Check if it's a short input (1-3 characters that are all digits)
+  if (!/^\d{1,3}$/.test(trimmed)) {
+    // Not a 1-3 digit input, return as-is (remove non-digits)
     return [trimmed.replace(/\D/g, "")];
   }
   
-  // Use the 3 digits directly
-  return STUDENT_ID_PREFIXES.map(prefix => prefix + trimmed);
+  // Pad with leading zeros to make it 2 digits
+  const padded = trimmed.padStart(2, "0");
+  
+  // Generate possible full IDs with all prefixes
+  return STUDENT_ID_PREFIXES.map(prefix => prefix + padded);
 }
 
 interface StudentPaymentStatus {
@@ -308,7 +311,7 @@ const Index = () => {
           {history.length === 0 && (
             <p className="text-xs text-muted-foreground text-center mt-3 flex items-center justify-center gap-1.5">
               <Lightbulb className="w-3.5 h-3.5" />
-              <span>สามารถกรอกรหัสนิสิตแค่ 3 ตัวท้ายได้เลย</span>
+              <span>สามารถกรอกรหัสนิสิตแค่ 1-3 ตัวท้ายได้เลย</span>
             </p>
           )}
         </form>
