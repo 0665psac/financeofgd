@@ -176,9 +176,14 @@ const Index = () => {
         // No matches found, try searching with the first expanded ID
         handleSearch(possibleIds[0]);
       } else if (validOptions.length === 1) {
-        // Only one match, search directly
-        setStudentId(validOptions[0].id);
-        handleSearch(validOptions[0].id);
+        // Only one match, search directly and save to history
+        const matchedStudent = validOptions[0];
+        setStudentId(matchedStudent.id);
+        // Save to history immediately since we already know the student exists
+        addToSearchHistory(matchedStudent.id, matchedStudent.name);
+        logSearchHistory(matchedStudent.id, matchedStudent.name);
+        setHistory(getSearchHistory());
+        handleSearch(matchedStudent.id);
       } else {
         // Multiple matches, show disambiguation dialog
         setDisambiguationOptions(validOptions);
@@ -190,10 +195,14 @@ const Index = () => {
     }
   };
 
-  const handleDisambiguationSelect = (id: string) => {
+  const handleDisambiguationSelect = (selectedOption: { id: string; name: string }) => {
     setShowDisambiguation(false);
-    setStudentId(id);
-    handleSearch(id);
+    setStudentId(selectedOption.id);
+    // Save to history immediately since we already know the student exists
+    addToSearchHistory(selectedOption.id, selectedOption.name);
+    logSearchHistory(selectedOption.id, selectedOption.name);
+    setHistory(getSearchHistory());
+    handleSearch(selectedOption.id);
   };
 
   const handleHistorySelect = (id: string) => {
@@ -433,7 +442,7 @@ const Index = () => {
               {disambiguationOptions.map((option) => (
                 <button
                   key={option.id}
-                  onClick={() => handleDisambiguationSelect(option.id)}
+                  onClick={() => handleDisambiguationSelect(option)}
                   className="w-full p-4 rounded-xl bg-background/50 hover:bg-primary/10 
                            transition-all duration-200 text-left border border-border/50 hover:border-primary/30"
                 >
