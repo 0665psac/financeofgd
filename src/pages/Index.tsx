@@ -28,6 +28,7 @@ import {
 const STUDENT_ID_PREFIXES = ["68106100", "68106700"];
 
 // Expand short input (1-3 digits, including leading zeros like 02, 002, 016) to possible full student IDs
+// Examples: 2, 02, 002 → 02 → 6810610002 | 16, 016 → 16 → 6810610016
 function expandShortInput(input: string): string[] {
   const trimmed = input.trim();
   
@@ -37,8 +38,10 @@ function expandShortInput(input: string): string[] {
     return [trimmed.replace(/\D/g, "")];
   }
   
-  // Pad with leading zeros to make it 2 digits
-  const padded = trimmed.padStart(2, "0");
+  // Convert to number to remove leading zeros, then pad to 2 digits
+  // e.g., "002" → 2 → "02", "16" → 16 → "16", "2" → 2 → "02"
+  const numericValue = parseInt(trimmed, 10);
+  const padded = numericValue.toString().padStart(2, "0");
   
   // Generate possible full IDs with all prefixes
   return STUDENT_ID_PREFIXES.map(prefix => prefix + padded);
