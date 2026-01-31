@@ -18,7 +18,7 @@ const preloadGiftImage = () => {
 };
 preloadGiftImage();
 
-const blessingMessages = [
+const BLESSING_MESSAGES = [
   "ขอให้เกรด A พุ่งชน จนคนทั้งสาขาต้องอิจฉา!",
   "สู้ ๆนะ เรียนให้สนุก รู้อีกทีคือได้เกียรตินิยมแล้ว",
   "เกรดเป็นเรื่องสมมติ แต่ขอให้สมมติว่าเป็น A ทุกตัวนะ!",
@@ -31,13 +31,24 @@ const blessingMessages = [
   "ขอให้อาจารย์ไม่สั่งงานเพิ่ม และส่งงานทันเดดไลน์!",
 ];
 
-const newYearGreetings = [
-  "สวัสดีปีใหม่ 2026! ขอให้มีความสุขตลอดปี 🎉✨",
-  "ปีใหม่นี้ขอให้เกรดปังๆ การเงินเฮงๆ 🎁📚",
-  "ขอให้ปี 2026 พบเจอแต่เรื่องราวดีๆ และคนใจดีนะ 🌟❤️",
-  "ไม่มีหนี้คือลาภอันประเสริฐ! สุขสันต์วันปีใหม่ 🥳💰",
-  "Happy New Year! ขอให้โชคดีตลอดปี 2026 🎊🎁",
-  "ขอให้ปีใหม่นี้เต็มไปด้วยความสุขและความสำเร็จ! ✨🎆",
+const BLESSING_INTERVAL = 5000;
+
+// Student IDs that should NOT show the slip button
+const HIDDEN_SLIP_STUDENT_IDS = [
+  "6810610059",
+  "6810610060",
+  "6810610061",
+  "6810610062",
+  "6810610063",
+  "6810610064",
+  "6810610065",
+  "6810610066",
+  "6810610067",
+  "6810610068",
+  "6810610070",
+  "6810610071",
+  "6810610234",
+  "6810610243",
 ];
 
 interface MonthDetail {
@@ -174,11 +185,41 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
   }, [result.found, result.totalAmount]);
 
   const [isGiftDialogOpen, setIsGiftDialogOpen] = useState(false);
-  const [randomGreeting, setRandomGreeting] = useState("");
+  const [currentBlessingIndex, setCurrentBlessingIndex] = useState(0);
+  const [progressValue, setProgressValue] = useState(100);
+  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Blessing rotation effect when dialog is open
+  useEffect(() => {
+    if (!isGiftDialogOpen) return;
+    
+    // Reset on open
+    setCurrentBlessingIndex(0);
+    setProgressValue(100);
+    
+    // Start blessing rotation
+    const blessingInterval = setInterval(() => {
+      setCurrentBlessingIndex((prev) => (prev + 1) % BLESSING_MESSAGES.length);
+      setProgressValue(100);
+    }, BLESSING_INTERVAL);
+    
+    // Progress bar countdown
+    const updateInterval = 50;
+    const decrementPerUpdate = (100 / BLESSING_INTERVAL) * updateInterval;
+    
+    progressIntervalRef.current = setInterval(() => {
+      setProgressValue((prev) => Math.max(0, prev - decrementPerUpdate));
+    }, updateInterval);
+    
+    return () => {
+      clearInterval(blessingInterval);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+      }
+    };
+  }, [isGiftDialogOpen]);
 
   const handleGiftClick = () => {
-    const greeting = newYearGreetings[Math.floor(Math.random() * newYearGreetings.length)];
-    setRandomGreeting(greeting);
     setIsGiftDialogOpen(true);
   };
 
@@ -223,9 +264,15 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 alt="Gift Box" 
                 className="w-44 h-44 object-contain drop-shadow-xl animate-bounce-slow"
               />
-              <p className="text-lg font-medium text-foreground leading-relaxed gift-reveal">
-                {randomGreeting}
-              </p>
+              <div className="w-full">
+                <p className="text-lg font-medium text-foreground leading-relaxed gift-reveal min-h-[56px] flex items-center justify-center">
+                  {BLESSING_MESSAGES[currentBlessingIndex]}
+                </p>
+                <Progress 
+                  value={progressValue} 
+                  className="h-1 mt-3 bg-primary/20 [&>div]:bg-primary [&>div]:transition-all [&>div]:duration-100" 
+                />
+              </div>
               <Button 
                 onClick={() => setIsGiftDialogOpen(false)}
                 className="w-full rounded-full gradient-success hover:opacity-90 transition-opacity border-0 h-12 text-base font-semibold shadow-lg mt-2"
@@ -239,8 +286,8 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
     );
   }
 
-  // Check if "ส่งสลิป" button should be shown (not for ผลิตภัณฑ์ major)
-  const shouldShowSlipButton = result.major !== "ผลิตภัณฑ์";
+  // Check if "ส่งสลิป" button should be shown (not for specific student IDs)
+  const shouldShowSlipButton = !HIDDEN_SLIP_STUDENT_IDS.includes(studentId);
 
   // Case C: Has outstanding balance
   return (

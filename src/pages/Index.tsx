@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Progress } from "@/components/ui/progress";
 import Snowflakes from "@/components/Snowflakes";
 import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
@@ -27,22 +26,6 @@ import {
 
 // Prefixes for student ID expansion
 const STUDENT_ID_PREFIXES = ["68106100", "68106700"];
-
-// Blessing messages that rotate every 5 seconds
-const BLESSING_MESSAGES = [
-  "ขอให้เกรด A พุ่งชน จนคนทั้งสาขาต้องอิจฉา!",
-  "สู้ ๆนะ เรียนให้สนุก รู้อีกทีคือได้เกียรตินิยมแล้ว",
-  "เกรดเป็นเรื่องสมมติ แต่ขอให้สมมติว่าเป็น A ทุกตัวนะ!",
-  "ชีวิตมหาลัยครั้งเดียว ขอให้เก็บเกี่ยวความสุขให้เต็มที่",
-  "ขอให้เทพเจ้าการสอบคุ้มครอง สาธุ!",
-  "ขอให้ได้เซคที่ดี เพื่อนร่วมกลุ่มที่โดนใจ",
-  "ขอให้ตอนอาจารย์สุ่มตอบคำถามไม่โดนชื่อตัวเองนะ",
-  "ขอให้โปรเจกต์ผ่านฉลุย ไฟนอลไม่ตุยนะจ๊ะ",
-  "ขอให้ดวงดีตอนเดาข้อสอบ",
-  "ขอให้อาจารย์ไม่สั่งงานเพิ่ม และส่งงานทันเดดไลน์!",
-];
-
-const BLESSING_INTERVAL = 5000; // 5 seconds
 
 // Expand short input (1-3 digits, including leading zeros like 02, 002, 016) to possible full student IDs
 // Examples: 2, 02, 002 → 02 → 6810610002 | 16, 016 → 16 → 6810610016
@@ -87,36 +70,9 @@ const Index = () => {
   const [disambiguationOptions, setDisambiguationOptions] = useState<{ id: string; name: string }[]>([]);
   const [showDisambiguation, setShowDisambiguation] = useState(false);
   
-  // Rotating blessing state
-  const [currentBlessingIndex, setCurrentBlessingIndex] = useState(0);
-  const [progressValue, setProgressValue] = useState(100);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  
   const { toast } = useToast();
 
-  // Blessing rotation effect
-  useEffect(() => {
-    // Start blessing rotation
-    const blessingInterval = setInterval(() => {
-      setCurrentBlessingIndex((prev) => (prev + 1) % BLESSING_MESSAGES.length);
-      setProgressValue(100);
-    }, BLESSING_INTERVAL);
-    
-    // Progress bar countdown - update every 50ms for smooth animation
-    const updateInterval = 50;
-    const decrementPerUpdate = (100 / BLESSING_INTERVAL) * updateInterval;
-    
-    progressIntervalRef.current = setInterval(() => {
-      setProgressValue((prev) => Math.max(0, prev - decrementPerUpdate));
-    }, updateInterval);
-    
-    return () => {
-      clearInterval(blessingInterval);
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-      }
-    };
-  }, []);
+
 
   useEffect(() => {
     setHistory(getSearchHistory());
@@ -291,17 +247,6 @@ const Index = () => {
           <p className="text-sm text-muted-foreground">
             ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
           </p>
-          
-          {/* Rotating Blessing Messages */}
-          <div className="mt-4 px-4 py-3 bg-primary/10 rounded-2xl">
-            <p className="text-sm text-foreground font-medium min-h-[40px] flex items-center justify-center transition-opacity duration-300">
-              ✨ {BLESSING_MESSAGES[currentBlessingIndex]} ✨
-            </p>
-            <Progress 
-              value={progressValue} 
-              className="h-1 mt-2 bg-primary/20 [&>div]:bg-primary [&>div]:transition-all [&>div]:duration-100" 
-            />
-          </div>
         </header>
 
         {/* Total Amount Display - Glassmorphism */}
