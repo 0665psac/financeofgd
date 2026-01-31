@@ -9,6 +9,7 @@ import {
   DialogContent,
 } from "./ui/dialog";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { Progress } from "./ui/progress";
 
 // Preload gift box image on module load
 const preloadGiftImage = () => {
@@ -16,6 +17,19 @@ const preloadGiftImage = () => {
   img.src = GiftBox3D;
 };
 preloadGiftImage();
+
+const blessingMessages = [
+  "ขอให้เกรด A พุ่งชน จนคนทั้งสาขาต้องอิจฉา!",
+  "สู้ ๆนะ เรียนให้สนุก รู้อีกทีคือได้เกียรตินิยมแล้ว",
+  "เกรดเป็นเรื่องสมมติ แต่ขอให้สมมติว่าเป็น A ทุกตัวนะ!",
+  "ชีวิตมหาลัยครั้งเดียว ขอให้เก็บเกี่ยวความสุขให้เต็มที่",
+  "ขอให้เทพเจ้าการสอบคุ้มครอง สาธุ!",
+  "ขอให้ได้เซคที่ดี เพื่อนร่วมกลุ่มที่โดนใจ",
+  "ขอให้ตอนอาจารย์สุ่มตอบคำถามไม่โดนชื่อตัวเองนะ",
+  "ขอให้โปรเจกต์ผ่านฉลุย ไฟนอลไม่ตุยนะจ๊ะ",
+  "ขอให้ดวงดีตอนเดาข้อสอบ",
+  "ขอให้อาจารย์ไม่สั่งงานเพิ่ม และส่งงานทันเดดไลน์!",
+];
 
 const newYearGreetings = [
   "สวัสดีปีใหม่ 2026! ขอให้มีความสุขตลอดปี 🎉✨",
@@ -39,6 +53,7 @@ interface SearchResult {
   totalAmount?: number;
   paidAmount?: number;
   monthDetails?: MonthDetail[];
+  major?: string;
 }
 
 // Monthly Details Collapsible Component
@@ -224,6 +239,9 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
     );
   }
 
+  // Check if "ส่งสลิป" button should be shown (not for ผลิตภัณฑ์ major)
+  const shouldShowSlipButton = result.major !== "ผลิตภัณฑ์";
+
   // Case C: Has outstanding balance
   return (
     <Card className="animate-scale-in glass-card rounded-3xl border-0 overflow-hidden">
@@ -246,13 +264,15 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           <p className="text-5xl font-extrabold font-kanit gradient-danger-text">
             {result.totalAmount?.toLocaleString()} บาท
           </p>
-          <Button
-            className="mt-5 w-full rounded-full gradient-danger hover:opacity-90 transition-opacity border-0 h-12 text-base font-medium shadow-lg"
-            onClick={() => window.open("https://forms.gle/FepKQ6mFyFJzg2GGA", "_blank")}
-          >
-            <ExternalLink className="w-4 h-4 mr-2" />
-            ส่งสลิป
-          </Button>
+          {shouldShowSlipButton && (
+            <Button
+              className="mt-5 w-full rounded-full gradient-danger hover:opacity-90 transition-opacity border-0 h-12 text-base font-medium shadow-lg"
+              onClick={() => window.open("https://forms.gle/FepKQ6mFyFJzg2GGA", "_blank")}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              ส่งสลิป
+            </Button>
+          )}
         </div>
 
         {/* Monthly Details - Collapsible */}

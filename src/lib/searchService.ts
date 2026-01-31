@@ -13,6 +13,7 @@ export interface SearchResult {
   totalAmount?: number;
   paidAmount?: number;
   monthDetails?: MonthDetail[];
+  major?: string;
 }
 
 // Cache for sheet data
@@ -33,6 +34,22 @@ async function getSheetData(): Promise<SheetData[]> {
   cacheTimestamp = now;
   
   return cachedData;
+}
+
+// Determine major based on student ID
+// Based on spreadsheet pattern: ผลิตภัณฑ์ students have IDs 6810610059-6810610243
+// กราฟิก students have IDs 6810610001-6810610xxx (lower numbers)
+function determineMajor(studentId: string): string {
+  // Extract last digits after 68106100 prefix
+  if (studentId.startsWith("68106100")) {
+    const suffix = parseInt(studentId.slice(8), 10);
+    // ผลิตภัณฑ์ range: 59+ (based on spreadsheet showing 59-71, 234, 243)
+    if (suffix >= 59) {
+      return "ผลิตภัณฑ์";
+    }
+  }
+  // Default to กราฟิก for lower numbers or 681067xx prefix
+  return "กราฟิก";
 }
 
 export async function searchStudent(studentId: string): Promise<SearchResult> {
@@ -101,6 +118,7 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
       totalAmount,
       paidAmount,
       monthDetails,
+      major: determineMajor(trimmedId),
     };
   } catch (error) {
     if (import.meta.env.DEV) {
