@@ -93,7 +93,7 @@ const Index = () => {
       const studentMap = new Map<string, StudentPaymentStatus>();
       
       for (const sheet of sheetsData) {
-        const weeklyRate = isNovember68OrNewer(sheet.sheetName) ? 40 : 30;
+        const weeklyRate = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
         
         for (const record of sheet.records) {
           const weeksUnpaid = [record.week1, record.week2, record.week3, record.week4].filter(w => !w).length;
