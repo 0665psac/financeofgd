@@ -246,7 +246,7 @@ const Index = () => {
             ระบบตรวจสอบยอดค้างชำระ
           </h1>
           <p className="text-sm">
-            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium border border-primary/20">
+            <span className="px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-400 text-white font-medium shadow-sm">
               ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
             </span>
           </p>
