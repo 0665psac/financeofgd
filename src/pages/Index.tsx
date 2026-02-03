@@ -245,10 +245,8 @@ const Index = () => {
           <h1 className="text-2xl font-bold text-foreground mb-2">
             ระบบตรวจสอบยอดค้างชำระ
           </h1>
-          <p className="text-sm">
-            <span className="px-3 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-green-400 text-white font-medium shadow-sm">
-              ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
-            </span>
+          <p className="text-sm text-muted-foreground">
+            ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
           </p>
         </header>
 
