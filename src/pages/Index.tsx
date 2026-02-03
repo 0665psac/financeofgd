@@ -242,17 +242,13 @@ const Index = () => {
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-8">
-          <div className="inline-flex items-center gap-2 mb-3">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-border" />
-            <Sparkles className="w-4 h-4 text-muted-foreground/60" />
-            <div className="h-px w-8 bg-gradient-to-l from-transparent to-border" />
-          </div>
-          
           <h1 className="text-2xl font-bold text-foreground mb-2">
             ระบบตรวจสอบยอดค้างชำระ
           </h1>
-          <p className="text-sm text-muted-foreground">
-            ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
+          <p className="text-sm">
+            <span className="px-3 py-1 rounded-full bg-primary/10 text-primary font-medium border border-primary/20">
+              ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
+            </span>
           </p>
         </header>
 
