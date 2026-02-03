@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronDown, Lightbulb } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronDown, Lightbulb, Sparkles } from "lucide-react";
+import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -240,13 +241,27 @@ const Index = () => {
       {/* Main Content */}
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
         {/* Header */}
-        <header className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            ระบบตรวจสอบยอดค้างชำระ
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
-          </p>
+        <header className="text-center mb-8 relative">
+          {/* Decorative elements */}
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 flex items-center gap-1">
+            <Sparkles className="w-4 h-4 text-accent animate-pulse" />
+            <div className="h-px w-12 bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
+            <Sparkles className="w-4 h-4 text-primary animate-pulse" style={{ animationDelay: '0.5s' }} />
+            <div className="h-px w-12 bg-gradient-to-r from-transparent via-secondary/50 to-transparent" />
+            <Sparkles className="w-4 h-4 text-secondary animate-pulse" style={{ animationDelay: '1s' }} />
+          </div>
+          
+          <div className="pt-6">
+            <h1 className="text-2xl font-bold mb-2 bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              ระบบตรวจสอบยอดค้างชำระ
+            </h1>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-muted/50 backdrop-blur-sm border border-border/50">
+              <div className="w-2 h-2 rounded-full bg-secondary animate-pulse" />
+              <p className="text-sm text-muted-foreground">
+                ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
+              </p>
+            </div>
+          </div>
         </header>
 
         {/* Total Amount Display - Glassmorphism */}
@@ -262,7 +277,13 @@ const Index = () => {
               <Skeleton className="h-12 w-40 mx-auto rounded-2xl" />
             ) : totalAmount !== null ? (
               <span className="text-4xl font-extrabold font-kanit gradient-success-text">
-                {totalAmount.toLocaleString("th-TH")} บาท
+                <CountUp
+                  end={totalAmount}
+                  duration={2}
+                  separator=","
+                  decimal="."
+                  suffix=" บาท"
+                />
               </span>
             ) : (
               <span className="text-sm text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
