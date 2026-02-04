@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronDown, Lightbulb, Loader2 } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2 } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -359,87 +359,94 @@ const Index = () => {
           <ResultCard result={result} studentId={searchedId} />
         )}
 
-        {/* Payment Status Section - Always visible */}
-        <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen}>
-          <div className="mt-6 p-4 glass-card rounded-3xl">
-            <CollapsibleTrigger className="w-full">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Users className="w-5 h-5 text-amber-500" />
-                  <h2 className="text-base font-bold text-foreground">สถานะการชำระเงินทั้งหมด</h2>
-                </div>
-                {isStudentsLoading ? (
-                  <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-                ) : (
-                  <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
-                )}
-              </div>
-            </CollapsibleTrigger>
-              
-              <CollapsibleContent>
-                {/* Summary */}
-                <div className="mt-3 space-y-2">
-                  <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
-                    <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
-                    <span className="text-base font-bold text-amber-500">
-                      {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
-                    </span>
-                  </div>
-                  <div className="flex gap-2">
-                    <div className="flex-1 p-3 rounded-xl bg-red-500/10 text-center">
-                      <p className="text-lg font-bold text-red-500">{allStudents.filter(s => !s.isPaidAll).length}</p>
-                      <p className="text-xs text-muted-foreground">ยังค้างชำระ</p>
+        {/* Payment Status Section - Fixed at bottom */}
+        <div className="fixed bottom-0 left-0 right-0 z-50">
+          <div className="container max-w-md mx-auto px-4">
+            <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen}>
+              <div className="glass-card rounded-t-3xl overflow-hidden">
+                <CollapsibleContent className="max-h-[60vh] overflow-y-auto">
+                  {/* Summary */}
+                  <div className="p-4 space-y-2">
+                    <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
+                      <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
+                      <span className="text-base font-bold text-amber-500">
+                        {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
+                      </span>
                     </div>
-                    <div className="flex-1 p-3 rounded-xl bg-emerald-500/10 text-center">
-                      <p className="text-lg font-bold text-emerald-500">{allStudents.filter(s => s.isPaidAll).length}</p>
-                      <p className="text-xs text-muted-foreground">จ่ายครบแล้ว</p>
+                    <div className="flex gap-2">
+                      <div className="flex-1 p-3 rounded-xl bg-red-500/10 text-center">
+                        <p className="text-lg font-bold text-red-500">{allStudents.filter(s => !s.isPaidAll).length}</p>
+                        <p className="text-xs text-muted-foreground">ยังค้างชำระ</p>
+                      </div>
+                      <div className="flex-1 p-3 rounded-xl bg-emerald-500/10 text-center">
+                        <p className="text-lg font-bold text-emerald-500">{allStudents.filter(s => s.isPaidAll).length}</p>
+                        <p className="text-xs text-muted-foreground">จ่ายครบแล้ว</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                
-                <p className="text-xs text-muted-foreground mt-3 mb-3">เรียงจากยอดค้างมากที่สุด</p>
-                
-                {isStudentsLoading ? (
-                  <div className="space-y-2">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Skeleton key={i} className="h-12 w-full rounded-xl" />
-                    ))}
-                  </div>
-                ) : allStudents.length > 0 ? (
-                  <div className="space-y-2 max-h-80 overflow-y-auto">
-                    {allStudents.map((student, index) => (
-                      <div
-                        key={student.studentId}
-                        className={`flex items-center justify-between p-3 rounded-xl ${
-                          student.isPaidAll ? 'bg-emerald-500/10' : 'bg-background/50'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground w-5">{index + 1}.</span>
-                          <div>
-                            <p className="text-sm font-medium text-foreground">{student.studentName}</p>
-                            <p className="text-xs text-muted-foreground">{student.studentId}</p>
+                  
+                  <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดค้างมากที่สุด</p>
+                  
+                  {isStudentsLoading ? (
+                    <div className="space-y-2 px-4 pb-4">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <Skeleton key={i} className="h-12 w-full rounded-xl" />
+                      ))}
+                    </div>
+                  ) : allStudents.length > 0 ? (
+                    <div className="space-y-2 px-4 pb-4">
+                      {allStudents.map((student, index) => (
+                        <div
+                          key={student.studentId}
+                          className={`flex items-center justify-between p-3 rounded-xl ${
+                            student.isPaidAll ? 'bg-emerald-500/10' : 'bg-background/50'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground w-5">{index + 1}.</span>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{student.studentName}</p>
+                              <p className="text-xs text-muted-foreground">{student.studentId}</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            {student.isPaidAll ? (
+                              <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
+                            ) : (
+                              <>
+                                <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
+                                <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
+                              </>
+                            )}
                           </div>
                         </div>
-                        <div className="text-right">
-                          {student.isPaidAll ? (
-                            <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
-                          ) : (
-                            <>
-                              <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
-                              <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
+                  )}
+                </CollapsibleContent>
+                
+                <CollapsibleTrigger className="w-full p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-5 h-5 text-amber-500" />
+                      <h2 className="text-base font-bold text-foreground">สถานะการชำระเงินทั้งหมด</h2>
+                    </div>
+                    {isStudentsLoading ? (
+                      <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                    ) : (
+                      <ChevronUp className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
+                    )}
                   </div>
-                ) : (
-                  <p className="text-sm text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
-                )}
-            </CollapsibleContent>
+                </CollapsibleTrigger>
+              </div>
+            </Collapsible>
           </div>
-        </Collapsible>
+        </div>
+        
+        {/* Spacer for fixed bottom section */}
+        <div className="h-20"></div>
 
         {/* Disambiguation Dialog */}
         <Dialog open={showDisambiguation} onOpenChange={setShowDisambiguation}>
