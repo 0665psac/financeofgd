@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronDown, Lightbulb, Sparkles } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronDown, Lightbulb, Loader2 } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -359,19 +359,22 @@ const Index = () => {
           <ResultCard result={result} studentId={searchedId} />
         )}
 
-        {/* Payment Status Section - Only show after search */}
-        {result && !isLoading && (
-          <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen}>
-            <div className="mt-6 p-4 glass-card rounded-3xl">
-              <CollapsibleTrigger className="w-full">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Users className="w-5 h-5 text-amber-500" />
-                    <h2 className="text-base font-bold text-foreground">สถานะการชำระเงินทั้งหมด</h2>
-                  </div>
-                  <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
+        {/* Payment Status Section - Always visible */}
+        <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen}>
+          <div className="mt-6 p-4 glass-card rounded-3xl">
+            <CollapsibleTrigger className="w-full">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-500" />
+                  <h2 className="text-base font-bold text-foreground">สถานะการชำระเงินทั้งหมด</h2>
                 </div>
-              </CollapsibleTrigger>
+                {isStudentsLoading ? (
+                  <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                ) : (
+                  <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${isPaymentStatusOpen ? 'rotate-180' : ''}`} />
+                )}
+              </div>
+            </CollapsibleTrigger>
               
               <CollapsibleContent>
                 {/* Summary */}
@@ -434,10 +437,9 @@ const Index = () => {
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-4">ไม่มีข้อมูล</p>
                 )}
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
-        )}
+            </CollapsibleContent>
+          </div>
+        </Collapsible>
 
         {/* Disambiguation Dialog */}
         <Dialog open={showDisambiguation} onOpenChange={setShowDisambiguation}>
