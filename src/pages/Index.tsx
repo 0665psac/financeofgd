@@ -359,12 +359,12 @@ const Index = () => {
           <ResultCard result={result} studentId={searchedId} />
         )}
 
-        {/* Payment Status Section - Fixed at bottom */}
-        <div className="fixed bottom-0 left-0 right-0 z-50">
-          <div className="container max-w-md mx-auto px-4">
-            <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen}>
-              <div className="glass-card rounded-t-3xl overflow-hidden">
-                <CollapsibleContent className="max-h-[60vh] overflow-y-auto">
+        {/* Payment Status Section - Fixed at bottom, expands to cover content but not header */}
+        <div className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isPaymentStatusOpen ? 'top-[120px] bottom-0' : 'bottom-0'}`}>
+          <div className="container max-w-md mx-auto px-4 h-full">
+            <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen} className="h-full flex flex-col">
+              <div className={`glass-card rounded-t-3xl overflow-hidden flex flex-col ${isPaymentStatusOpen ? 'h-full' : ''}`}>
+                <CollapsibleContent className="flex-1 overflow-y-auto">
                   {/* Summary */}
                   <div className="p-4 space-y-2">
                     <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
@@ -427,7 +427,7 @@ const Index = () => {
                   )}
                 </CollapsibleContent>
                 
-                <CollapsibleTrigger className="w-full p-4">
+                <CollapsibleTrigger className="w-full p-4 shrink-0">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5 text-amber-500" />
