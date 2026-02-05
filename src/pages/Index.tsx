@@ -360,6 +360,12 @@ const Index = () => {
         )}
 
         {/* Payment Status Section - Fixed at bottom, expands to cover content but not header */}
+        {isPaymentStatusOpen && (
+          <div 
+            className="fixed inset-0 z-40 bg-black/20" 
+            onClick={() => setIsPaymentStatusOpen(false)}
+          />
+        )}
         <div className={`fixed left-0 right-0 z-50 transition-all duration-300 ${isPaymentStatusOpen ? 'top-[120px] bottom-0' : 'bottom-0'}`}>
           <div className="container max-w-md mx-auto px-4 h-full">
             <Collapsible open={isPaymentStatusOpen} onOpenChange={setIsPaymentStatusOpen} className="h-full flex flex-col">
