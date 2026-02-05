@@ -26,11 +26,13 @@ import {
 } from "@/components/ui/dialog";
 
 // Prefixes for student ID expansion
-const STUDENT_ID_PREFIXES_2DIGIT = ["68106100", "68106700"];
-const STUDENT_ID_PREFIXES_3DIGIT = ["6810610", "6810670"];
+const STUDENT_ID_PREFIX_1DIGIT = "681061000";  // 9 digits + 1 = 10
+const STUDENT_ID_PREFIX_2DIGIT = "68106100";   // 8 digits + 2 = 10
+const STUDENT_ID_PREFIX_3DIGIT = "6810610";    // 7 digits + 3 = 10
 
-// Expand short input (1-3 digits, including leading zeros like 02, 002, 016) to possible full student IDs
-// Examples: 2, 02, 002 → 02 → 6810610002 | 16, 016 → 16 → 6810610016 | 229 → 229 → 6810610229
+// Expand short input (1-3 digits) to full student ID
+// Logic: 1 digit → 681061000X, 2 digits → 68106100XX, 3 digits → 6810610XXX
+// Leading zeros are removed first: 01→1 (1-digit), 001→1 (1-digit), 016→16 (2-digit)
 function expandShortInput(input: string): string[] {
   const trimmed = input.trim();
   
@@ -40,18 +42,20 @@ function expandShortInput(input: string): string[] {
     return [trimmed.replace(/\D/g, "")];
   }
   
-  // Convert to number to remove leading zeros
+  // Convert to number to remove leading zeros, then determine digit count
   const numericValue = parseInt(trimmed, 10);
+  const numericStr = numericValue.toString();
+  const digitCount = numericStr.length;
   
-  // For 3-digit numbers (100-999), use 7-digit prefix
-  // For 1-2 digit numbers, use 8-digit prefix and pad to 2 digits
-  if (numericValue >= 100) {
-    // 3-digit: prefix(7) + suffix(3) = 10 digits
-    return STUDENT_ID_PREFIXES_3DIGIT.map(prefix => prefix + numericValue.toString());
+  if (digitCount === 1) {
+    // 1 digit: 681061000 + X = 10 digits
+    return [STUDENT_ID_PREFIX_1DIGIT + numericStr];
+  } else if (digitCount === 2) {
+    // 2 digits: 68106100 + XX = 10 digits
+    return [STUDENT_ID_PREFIX_2DIGIT + numericStr];
   } else {
-    // 1-2 digit: prefix(8) + suffix(2) = 10 digits
-    const padded = numericValue.toString().padStart(2, "0");
-    return STUDENT_ID_PREFIXES_2DIGIT.map(prefix => prefix + padded);
+    // 3 digits: 6810610 + XXX = 10 digits
+    return [STUDENT_ID_PREFIX_3DIGIT + numericStr];
   }
 }
 
