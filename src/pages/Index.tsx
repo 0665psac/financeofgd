@@ -26,10 +26,11 @@ import {
 } from "@/components/ui/dialog";
 
 // Prefixes for student ID expansion
-const STUDENT_ID_PREFIXES = ["68106100", "68106700"];
+const STUDENT_ID_PREFIXES_2DIGIT = ["68106100", "68106700"];
+const STUDENT_ID_PREFIXES_3DIGIT = ["6810610", "6810670"];
 
 // Expand short input (1-3 digits, including leading zeros like 02, 002, 016) to possible full student IDs
-// Examples: 2, 02, 002 → 02 → 6810610002 | 16, 016 → 16 → 6810610016
+// Examples: 2, 02, 002 → 02 → 6810610002 | 16, 016 → 16 → 6810610016 | 229 → 229 → 6810610229
 function expandShortInput(input: string): string[] {
   const trimmed = input.trim();
   
@@ -39,13 +40,19 @@ function expandShortInput(input: string): string[] {
     return [trimmed.replace(/\D/g, "")];
   }
   
-  // Convert to number to remove leading zeros, then pad to 2 digits
-  // e.g., "002" → 2 → "02", "16" → 16 → "16", "2" → 2 → "02"
+  // Convert to number to remove leading zeros
   const numericValue = parseInt(trimmed, 10);
-  const padded = numericValue.toString().padStart(2, "0");
   
-  // Generate possible full IDs with all prefixes
-  return STUDENT_ID_PREFIXES.map(prefix => prefix + padded);
+  // For 3-digit numbers (100-999), use 7-digit prefix
+  // For 1-2 digit numbers, use 8-digit prefix and pad to 2 digits
+  if (numericValue >= 100) {
+    // 3-digit: prefix(7) + suffix(3) = 10 digits
+    return STUDENT_ID_PREFIXES_3DIGIT.map(prefix => prefix + numericValue.toString());
+  } else {
+    // 1-2 digit: prefix(8) + suffix(2) = 10 digits
+    const padded = numericValue.toString().padStart(2, "0");
+    return STUDENT_ID_PREFIXES_2DIGIT.map(prefix => prefix + padded);
+  }
 }
 
 interface StudentPaymentStatus {
