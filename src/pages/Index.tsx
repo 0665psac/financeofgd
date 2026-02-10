@@ -1,9 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Megaphone, Receipt } from "lucide-react";
 import Snowflakes from "@/components/Snowflakes";
+import { useTheme } from "@/hooks/useTheme";
+import logoDark from "@/assets/logo-dark.png";
+import logoLight from "@/assets/logo-light.png";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { theme } = useTheme();
 
   return (
     <div className="min-h-screen mesh-gradient-bg relative overflow-hidden flex items-center justify-center">
@@ -12,12 +16,11 @@ const Index = () => {
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
         {/* Header */}
         <header className="text-center mb-10">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            การเงินสาขาเด็ก GD
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            กราฟิกและผลิตภัณฑ์
-          </p>
+          <img
+            src={theme === "dark" ? logoDark : logoLight}
+            alt="DA68 Design Art Logo"
+            className="h-28 mx-auto"
+          />
         </header>
 
         {/* Menu Cards */}
