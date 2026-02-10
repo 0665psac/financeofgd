@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2, ArrowLeft } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -67,7 +68,8 @@ interface StudentPaymentStatus {
   isPaidAll: boolean;
 }
 
-const Index = () => {
+const PaymentCheck = () => {
+  const navigate = useNavigate();
   const [studentId, setStudentId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -251,15 +253,23 @@ const Index = () => {
 
       {/* Main Content */}
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
-        {/* Header */}
-        <header className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-foreground mb-2">
-            ระบบตรวจสอบยอดค้างชำระ
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
-          </p>
-        </header>
+        {/* Back Button + Header */}
+        <div className="flex items-center mb-8">
+          <button
+            onClick={() => navigate("/")}
+            className="w-10 h-10 rounded-full glass-card flex items-center justify-center transition-transform active:scale-95 hover:scale-105"
+          >
+            <ArrowLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <header className="text-center flex-1 pr-10">
+            <h1 className="text-2xl font-bold text-foreground mb-1">
+              ระบบตรวจสอบยอดค้างชำระ
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
+            </p>
+          </header>
+        </div>
 
         {/* Total Amount Display - Glassmorphism */}
         <div className="mb-6 p-6 glass-card rounded-3xl">
@@ -491,4 +501,4 @@ const Index = () => {
   );
 };
 
-export default Index;
+export default PaymentCheck;
