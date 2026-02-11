@@ -1,9 +1,45 @@
-import { ArrowLeft, Megaphone } from "lucide-react";
+import { useState, useEffect } from "react";
+import { ArrowLeft, Megaphone, ExternalLink, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Snowflakes from "@/components/Snowflakes";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Announcement {
+  id: string;
+  title: string;
+  description: string | null;
+  banner_url: string | null;
+  button_label: string | null;
+  button_link: string | null;
+  created_at: string;
+}
 
 const Announcements = () => {
   const navigate = useNavigate();
+  const [announcements, setAnnouncements] = useState<Announcement[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAnnouncements = async () => {
+      try {
+        const { data, error } = await supabase
+          .from("announcements")
+          .select("id, title, description, banner_url, button_label, button_link, created_at")
+          .eq("is_published", true)
+          .order("created_at", { ascending: false });
+
+        if (!error && data) {
+          setAnnouncements(data as Announcement[]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch announcements:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAnnouncements();
+  }, []);
 
   return (
     <div className="min-h-screen mesh-gradient-bg relative overflow-hidden">
@@ -32,10 +68,58 @@ const Announcements = () => {
           </div>
         </header>
 
-        {/* Empty state */}
-        <div className="glass-card rounded-3xl p-8 text-center">
-          <p className="text-muted-foreground text-sm">ยังไม่มีประกาศในขณะนี้</p>
-        </div>
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          </div>
+        ) : announcements.length === 0 ? (
+          <div className="glass-card rounded-3xl p-8 text-center">
+            <p className="text-muted-foreground text-sm">ยังไม่มีประกาศในขณะนี้</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {announcements.map((ann) => (
+              <div key={ann.id} className="glass-card rounded-3xl overflow-hidden">
+                {ann.banner_url && (
+                  <img
+                    src={ann.banner_url}
+                    alt={ann.title}
+                    className="w-full h-40 object-cover"
+                    loading="lazy"
+                  />
+                )}
+                <div className="p-5">
+                  <h2 className="font-bold text-foreground mb-1">{ann.title}</h2>
+                  {ann.description && (
+                    <p className="text-sm text-muted-foreground mb-3 whitespace-pre-line">
+                      {ann.description}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] text-muted-foreground">
+                      {new Date(ann.created_at).toLocaleDateString("th-TH", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                    {ann.button_label && ann.button_link && (
+                      <a
+                        href={ann.button_link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+                      >
+                        {ann.button_label}
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
