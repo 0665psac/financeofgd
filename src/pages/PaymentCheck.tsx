@@ -253,23 +253,24 @@ const PaymentCheck = () => {
 
       {/* Main Content */}
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
-        {/* Back Button + Header */}
-        <div className="flex items-center mb-8">
+        {/* Header with back button */}
+        <header className="mb-8">
           <button
             onClick={() => navigate("/")}
-            className="w-10 h-10 rounded-full glass-card flex items-center justify-center transition-transform active:scale-95 hover:scale-105"
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
           >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับหน้าหลัก</span>
           </button>
-          <header className="text-center flex-1 pr-10">
+          <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground mb-1">
               ระบบตรวจสอบยอดค้างชำระ
             </h1>
             <p className="text-sm text-muted-foreground">
               ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
             </p>
-          </header>
-        </div>
+          </div>
+        </header>
 
         {/* Total Amount Display - Glassmorphism */}
         <div className="mb-6 p-6 glass-card rounded-3xl">

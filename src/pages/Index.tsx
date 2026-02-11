@@ -19,7 +19,7 @@ const Index = () => {
           <img
             src={theme === "dark" ? logoDark : logoLight}
             alt="DA68 Design Art Logo"
-            className="h-28 mx-auto"
+            className="h-40 mx-auto"
           />
         </header>
 
