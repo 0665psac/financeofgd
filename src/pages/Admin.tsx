@@ -31,14 +31,32 @@ const Admin = () => {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
 
+  const DRAFT_KEY = "admin_announcement_draft";
+
+  const loadDraft = () => {
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      return saved ? JSON.parse(saved) : null;
+    } catch { return null; }
+  };
+
+  const draft = loadDraft();
+
   // Form state
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [bannerUrl, setBannerUrl] = useState("");
-  const [buttonLabel, setButtonLabel] = useState("");
-  const [buttonLink, setButtonLink] = useState("");
-  const [isPublished, setIsPublished] = useState(true);
+  const [title, setTitle] = useState(draft?.title || "");
+  const [description, setDescription] = useState(draft?.description || "");
+  const [bannerUrl, setBannerUrl] = useState(draft?.bannerUrl || "");
+  const [buttonLabel, setButtonLabel] = useState(draft?.buttonLabel || "");
+  const [buttonLink, setButtonLink] = useState(draft?.buttonLink || "");
+  const [isPublished, setIsPublished] = useState(draft?.isPublished ?? true);
   const [uploading, setUploading] = useState(false);
+
+  // Save draft to localStorage on form changes
+  useEffect(() => {
+    if (dialogOpen) {
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ title, description, bannerUrl, buttonLabel, buttonLink, isPublished }));
+    }
+  }, [title, description, bannerUrl, buttonLabel, buttonLink, isPublished, dialogOpen]);
 
   const fetchAnnouncements = useCallback(async () => {
     try {
@@ -80,6 +98,7 @@ const Admin = () => {
     setButtonLink("");
     setIsPublished(true);
     setEditing(null);
+    localStorage.removeItem(DRAFT_KEY);
   };
 
   const openCreate = () => {

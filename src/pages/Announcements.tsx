@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, Megaphone, ExternalLink, Loader2 } from "lucide-react";
+import { ArrowLeft, Megaphone, ExternalLink } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Snowflakes from "@/components/Snowflakes";
+import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Announcement {
@@ -69,8 +70,21 @@ const Announcements = () => {
         </header>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+          <div className="space-y-4">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="glass-card rounded-3xl overflow-hidden">
+                <Skeleton className="w-full h-40" />
+                <div className="p-5 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <div className="flex justify-between items-center pt-1">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-4 w-20" />
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         ) : announcements.length === 0 ? (
           <div className="glass-card rounded-3xl p-8 text-center">
