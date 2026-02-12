@@ -68,6 +68,142 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "chat_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_poll_options: {
+        Row: {
+          id: string
+          label: string
+          poll_id: string
+        }
+        Insert: {
+          id?: string
+          label: string
+          poll_id: string
+        }
+        Update: {
+          id?: string
+          label?: string
+          poll_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_poll_options_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "chat_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_poll_votes: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          option_id: string
+          poll_id: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          option_id: string
+          poll_id: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          option_id?: string
+          poll_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_poll_votes_option_id_fkey"
+            columns: ["option_id"]
+            isOneToOne: false
+            referencedRelation: "chat_poll_options"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "chat_polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_polls: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          question: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          question: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          question?: string
+        }
+        Relationships: []
+      }
+      chat_users: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          nickname: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          nickname: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          nickname?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
