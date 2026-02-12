@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useCallback } from "react";
-import { Megaphone, Receipt } from "lucide-react";
+import { Megaphone, Receipt, Loader2 } from "lucide-react";
 import Snowflakes from "@/components/Snowflakes";
 import { useTheme } from "@/hooks/useTheme";
 import logoDark from "@/assets/logo-dark.png";
@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -18,19 +17,20 @@ const Index = () => {
   const [password, setPassword] = useState("");
   const [verifying, setVerifying] = useState(false);
 
-  // Triple-click detection
-  const clickTimesRef = useRef<number[]>([]);
+  // Long-press detection (1 second)
+  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const handleLogoClick = useCallback(() => {
-    const now = Date.now();
-    clickTimesRef.current.push(now);
-    // Keep only clicks within last 2 seconds
-    clickTimesRef.current = clickTimesRef.current.filter((t) => now - t < 2000);
-
-    if (clickTimesRef.current.length >= 3) {
-      clickTimesRef.current = [];
+  const handlePointerDown = useCallback(() => {
+    pressTimerRef.current = setTimeout(() => {
       setPasswordDialog(true);
       setPassword("");
+    }, 1000);
+  }, []);
+
+  const handlePointerUp = useCallback(() => {
+    if (pressTimerRef.current) {
+      clearTimeout(pressTimerRef.current);
+      pressTimerRef.current = null;
     }
   }, []);
 
@@ -65,7 +65,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden flex items-center justify-center">
+    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden flex flex-col items-center pt-12">
       <Snowflakes />
 
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
@@ -74,8 +74,11 @@ const Index = () => {
           <img
             src={theme === "dark" ? logoDark : logoLight}
             alt="DA68 Design Art Logo"
-            className="h-40 mx-auto cursor-pointer"
-            onClick={handleLogoClick}
+            className="h-40 mx-auto cursor-pointer select-none"
+            onPointerDown={handlePointerDown}
+            onPointerUp={handlePointerUp}
+            onPointerLeave={handlePointerUp}
+            onContextMenu={(e) => e.preventDefault()}
           />
         </header>
 
