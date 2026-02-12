@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useRef, useCallback } from "react";
-import { Megaphone, Receipt, Loader2 } from "lucide-react";
+import { Megaphone, Receipt, MessageCircle, Loader2 } from "lucide-react";
 import Snowflakes from "@/components/Snowflakes";
 import { useTheme } from "@/hooks/useTheme";
 import logoDark from "@/assets/logo-dark.png";
@@ -109,6 +109,20 @@ const Index = () => {
             <div>
               <p className="text-lg font-semibold text-foreground">ตรวจสอบยอดค้างชำระ</p>
               <p className="text-sm text-muted-foreground">ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์</p>
+            </div>
+          </button>
+
+          {/* Chat */}
+          <button
+            onClick={() => navigate("/chat")}
+            className="w-full glass-card rounded-3xl p-6 flex items-center gap-4 text-left transition-transform active:scale-[0.98] hover:scale-[1.02]"
+          >
+            <div className="w-14 h-14 rounded-2xl gradient-chat flex items-center justify-center shrink-0">
+              <MessageCircle className="w-7 h-7 text-white" />
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-foreground">ห้องแชท</p>
+              <p className="text-sm text-muted-foreground">พูดคุยกันแบบไม่ระบุตัวตน</p>
             </div>
           </button>
         </div>

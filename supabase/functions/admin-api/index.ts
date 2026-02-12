@@ -185,6 +185,94 @@ Deno.serve(async (req) => {
       );
     }
 
+    // ===== POLL ACTIONS =====
+
+    // Create poll (admin only)
+    if (action === "create-poll" && req.method === "POST") {
+      const { question, options } = await req.json();
+      if (!question || typeof question !== "string" || question.length > 500) {
+        return new Response(JSON.stringify({ error: "Invalid question" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      if (!Array.isArray(options) || options.length < 2 || options.length > 10) {
+        return new Response(JSON.stringify({ error: "Need 2-10 options" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const { data: poll, error: pollErr } = await supabase
+        .from("chat_polls")
+        .insert({ question: question.trim() })
+        .select()
+        .single();
+      if (pollErr) throw pollErr;
+
+      const optionRows = options.map((label: string) => ({ poll_id: poll.id, label: label.trim() }));
+      const { error: optErr } = await supabase.from("chat_poll_options").insert(optionRows);
+      if (optErr) throw optErr;
+
+      return new Response(JSON.stringify(poll), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // List all polls with vote counts (admin)
+    if (action === "list-polls") {
+      const { data: polls, error } = await supabase
+        .from("chat_polls")
+        .select("*, chat_poll_options(*)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+
+      // Get vote counts per option
+      for (const poll of (polls || [])) {
+        for (const opt of (poll.chat_poll_options || [])) {
+          const { count } = await supabase
+            .from("chat_poll_votes")
+            .select("*", { count: "exact", head: true })
+            .eq("option_id", opt.id);
+          opt.vote_count = count || 0;
+        }
+      }
+
+      return new Response(JSON.stringify(polls), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Close/toggle poll
+    if (action === "toggle-poll" && req.method === "POST") {
+      const { id, is_active } = await req.json();
+      if (!id) return new Response(JSON.stringify({ error: "Missing id" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+      const { error } = await supabase
+        .from("chat_polls")
+        .update({ is_active })
+        .eq("id", id);
+      if (error) throw error;
+
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Delete poll
+    if (action === "delete-poll" && req.method === "POST") {
+      const { id } = await req.json();
+      if (!id) return new Response(JSON.stringify({ error: "Missing id" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+      const { error } = await supabase.from("chat_polls").delete().eq("id", id);
+      if (error) throw error;
+
+      return new Response(JSON.stringify({ success: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    // Check nickname availability
+    if (action === "check-nickname") {
+      const nickname = url.searchParams.get("nickname");
+      if (!nickname || nickname.length < 2) {
+        return new Response(JSON.stringify({ available: false }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const { data } = await supabase
+        .from("chat_users")
+        .select("id")
+        .eq("nickname", nickname.trim())
+        .maybeSingle();
+
+      return new Response(JSON.stringify({ available: !data }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     return new Response(
       JSON.stringify({ error: "Unknown action" }),
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
