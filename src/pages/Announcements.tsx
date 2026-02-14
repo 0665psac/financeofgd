@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { Megaphone, ExternalLink } from "lucide-react";
+import { ArrowLeft, Megaphone, ExternalLink } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import Snowflakes from "@/components/Snowflakes";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import BottomNav from "@/components/BottomNav";
 
 interface Announcement {
   id: string;
@@ -16,6 +16,7 @@ interface Announcement {
 }
 
 const Announcements = () => {
+  const navigate = useNavigate();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -42,12 +43,19 @@ const Announcements = () => {
   }, []);
 
   return (
-    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden pb-24">
+    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden">
       <Snowflakes />
 
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Header with back button */}
         <header className="mb-8">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับหน้าหลัก</span>
+          </button>
           <div className="text-center">
             <div className="w-12 h-12 rounded-2xl gradient-danger flex items-center justify-center mx-auto mb-3">
               <Megaphone className="w-6 h-6 text-white" />
@@ -127,8 +135,6 @@ const Announcements = () => {
           </div>
         )}
       </div>
-
-      <BottomNav />
     </div>
   );
 };

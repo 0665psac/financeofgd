@@ -1,6 +1,6 @@
-import { useState, useEffect, FormEvent, useRef, useCallback } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2 } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
+import { useState, useEffect, FormEvent, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2, ArrowLeft } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -69,6 +69,7 @@ interface StudentPaymentStatus {
 }
 
 const PaymentCheck = () => {
+  const navigate = useNavigate();
   const [studentId, setStudentId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<SearchResult | null>(null);
@@ -246,73 +247,23 @@ const PaymentCheck = () => {
     });
   };
 
-  // Long-press on header for admin access
-  const pressTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const handlePointerDown = useCallback(() => {
-    pressTimerRef.current = setTimeout(() => {
-      setPasswordDialog(true);
-      setPassword("");
-    }, 1000);
-  }, []);
-
-  const handlePointerUp = useCallback(() => {
-    if (pressTimerRef.current) {
-      clearTimeout(pressTimerRef.current);
-      pressTimerRef.current = null;
-    }
-  }, []);
-
-  const [passwordDialog, setPasswordDialog] = useState(false);
-  const [password, setPassword] = useState("");
-  const [verifying, setVerifying] = useState(false);
-
-  const handleVerifyPassword = async () => {
-    if (!password.trim()) return;
-    setVerifying(true);
-    try {
-      const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-api?action=verify-password`,
-        {
-          method: "POST",
-          headers: {
-            "apikey": import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ password }),
-        }
-      );
-      const result = await response.json();
-      if (result.verified) {
-        sessionStorage.setItem("admin_verified", "true");
-        setPasswordDialog(false);
-        window.location.href = "/admin";
-      } else {
-        toast({ title: "รหัสผ่านไม่ถูกต้อง", variant: "destructive" });
-      }
-    } catch {
-      toast({ title: "เกิดข้อผิดพลาด", variant: "destructive" });
-    } finally {
-      setVerifying(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden pb-24">
+    <div className="min-h-screen mesh-gradient-bg relative overflow-hidden">
       <Snowflakes />
 
       {/* Main Content */}
       <div className="relative z-10 container max-w-md mx-auto px-4 py-8">
-        {/* Header */}
+        {/* Header with back button */}
         <header className="mb-8">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับหน้าหลัก</span>
+          </button>
           <div className="text-center">
-            <h1
-              className="text-2xl font-bold text-foreground mb-1 cursor-pointer select-none"
-              onPointerDown={handlePointerDown}
-              onPointerUp={handlePointerUp}
-              onPointerLeave={handlePointerUp}
-              onContextMenu={(e) => e.preventDefault()}
-            >
+            <h1 className="text-2xl font-bold text-foreground mb-1">
               ระบบตรวจสอบยอดค้างชำระ
             </h1>
             <p className="text-sm text-muted-foreground">
@@ -546,36 +497,7 @@ const PaymentCheck = () => {
             </div>
           </DialogContent>
         </Dialog>
-
-        {/* Admin Password Dialog */}
-        <Dialog open={passwordDialog} onOpenChange={setPasswordDialog}>
-          <DialogContent className="max-w-sm">
-            <DialogHeader>
-              <DialogTitle>เข้าสู่ระบบแอดมิน</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-3 mt-2">
-              <Input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="รหัสผ่าน"
-                maxLength={100}
-                onKeyDown={(e) => e.key === "Enter" && handleVerifyPassword()}
-              />
-              <Button
-                onClick={handleVerifyPassword}
-                disabled={verifying || !password.trim()}
-                className="w-full rounded-xl"
-              >
-                {verifying && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                เข้าสู่ระบบ
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

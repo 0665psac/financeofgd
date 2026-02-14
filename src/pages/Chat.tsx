@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Send, Loader2, BarChart3 } from "lucide-react";
-import BottomNav from "@/components/BottomNav";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft, Send, Loader2, BarChart3 } from "lucide-react";
 import Snowflakes from "@/components/Snowflakes";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,6 +50,7 @@ interface Poll {
 }
 
 const Chat = () => {
+  const navigate = useNavigate();
   const deviceId = getDeviceId();
 
   const [user, setUser] = useState<ChatUser | null>(() => {
@@ -300,9 +301,16 @@ const Chat = () => {
     <div className="min-h-screen mesh-gradient-bg relative overflow-hidden flex flex-col">
       <Snowflakes />
 
-      <div className="relative z-10 container max-w-lg mx-auto px-4 py-4 flex flex-col h-screen pb-24">
+      <div className="relative z-10 container max-w-lg mx-auto px-4 py-4 flex flex-col h-screen">
         {/* Header */}
         <header className="mb-3 shrink-0">
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>กลับหน้าหลัก</span>
+          </button>
           <h1 className="text-xl font-bold text-foreground">ห้องแชท</h1>
           {user && (
             <p className="text-xs text-muted-foreground">แชทในชื่อ: <span className="font-medium text-foreground">{user.nickname}</span></p>
@@ -441,7 +449,7 @@ const Chat = () => {
             </Button>
             <Button
               variant="ghost"
-              onClick={() => window.location.href = "/payment"}
+              onClick={() => navigate("/")}
               className="w-full rounded-xl text-muted-foreground"
             >
               กลับหน้าหลัก
@@ -449,8 +457,6 @@ const Chat = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      <BottomNav />
     </div>
   );
 };
