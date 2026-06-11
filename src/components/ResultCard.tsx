@@ -56,6 +56,8 @@ interface MonthDetail {
   pricePerWeek: number;
   unpaidWeeks: number[];
   totalAmount: number;
+  isSinglePayment?: boolean;
+  isPaid?: boolean;
 }
 
 interface SearchResult {
@@ -93,30 +95,40 @@ const MonthlyDetailsCollapsible = ({ monthDetails }: { monthDetails?: MonthDetai
                 <div>
                   <p className="font-medium text-foreground">{month.monthName}</p>
                   <p className="text-xs text-muted-foreground">
-                    ต้องชำระ {month.pricePerWeek} บาท/สัปดาห์
+                    {month.isSinglePayment
+                      ? `จ่ายครั้งเดียว ${month.pricePerWeek} บาท`
+                      : `ต้องชำระ ${month.pricePerWeek} บาท/สัปดาห์`}
                   </p>
                 </div>
                 <p className="font-bold font-kanit gradient-danger-text text-lg">
                   {month.totalAmount.toLocaleString()} บาท
                 </p>
               </div>
-              <div className="flex gap-1.5 flex-wrap">
-                {[1, 2, 3, 4].map((week) => {
-                  const isUnpaid = month.unpaidWeeks.includes(week);
-                  return (
-                    <span
-                      key={week}
-                      className={`text-xs px-3 py-1.5 rounded-full font-medium ${
-                        isUnpaid
-                          ? "gradient-danger text-white"
-                          : "gradient-success text-white"
-                      }`}
-                    >
-                      W{week} {isUnpaid ? "❌️" : "✅️"}
-                    </span>
-                  );
-                })}
-              </div>
+              {month.isSinglePayment ? (
+                <div className="flex gap-1.5 flex-wrap">
+                  <span className="text-xs px-3 py-1.5 rounded-full font-medium gradient-danger text-white">
+                    ยังไม่ได้ชำระ ❌️
+                  </span>
+                </div>
+              ) : (
+                <div className="flex gap-1.5 flex-wrap">
+                  {[1, 2, 3, 4].map((week) => {
+                    const isUnpaid = month.unpaidWeeks.includes(week);
+                    return (
+                      <span
+                        key={week}
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                          isUnpaid
+                            ? "gradient-danger text-white"
+                            : "gradient-success text-white"
+                        }`}
+                      >
+                        W{week} {isUnpaid ? "❌️" : "✅️"}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -11,7 +11,7 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { logSearchHistory } from "@/lib/searchCounter";
-import { fetchTotalAmount, fetchAllSheetsData, isNovember68OrNewer } from "@/lib/googleSheets";
+import { fetchTotalAmount, fetchAllSheetsData, isNovember68OrNewer, isSinglePaymentMonth, SINGLE_PAYMENT_AMOUNT } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
@@ -106,23 +106,38 @@ const PaymentCheck = () => {
       const studentMap = new Map<string, StudentPaymentStatus>();
       
       for (const sheet of sheetsData) {
+        const isSingle = isSinglePaymentMonth(sheet.sheetName);
         const weeklyRate = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
         
         for (const record of sheet.records) {
-          const weeksUnpaid = [record.week1, record.week2, record.week3, record.week4].filter(w => !w).length;
+          const weeks = [record.week1, record.week2, record.week3, record.week4];
+          let addAmount = 0;
+          let addWeeksUnpaid = 0;
+          
+          if (isSingle) {
+            const isPaid = weeks.some(Boolean);
+            if (!isPaid) {
+              addAmount = SINGLE_PAYMENT_AMOUNT;
+              addWeeksUnpaid = 1;
+            }
+          } else {
+            const weeksUnpaid = weeks.filter(w => !w).length;
+            addWeeksUnpaid = weeksUnpaid;
+            addAmount = weeksUnpaid * weeklyRate;
+          }
           
           const existing = studentMap.get(record.studentId);
           if (existing) {
-            existing.totalWeeksUnpaid += weeksUnpaid;
-            existing.totalAmount += weeksUnpaid * weeklyRate;
-            if (weeksUnpaid > 0) existing.isPaidAll = false;
+            existing.totalWeeksUnpaid += addWeeksUnpaid;
+            existing.totalAmount += addAmount;
+            if (addWeeksUnpaid > 0) existing.isPaidAll = false;
           } else {
             studentMap.set(record.studentId, {
               studentId: record.studentId,
               studentName: record.studentName,
-              totalWeeksUnpaid: weeksUnpaid,
-              totalAmount: weeksUnpaid * weeklyRate,
-              isPaidAll: weeksUnpaid === 0,
+              totalWeeksUnpaid: addWeeksUnpaid,
+              totalAmount: addAmount,
+              isPaidAll: addWeeksUnpaid === 0,
             });
           }
         }
