@@ -81,6 +81,25 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
           studentName = record.studentName;
         }
 
+        // Special single-payment month (e.g., มิถุนายน 69): flat 120 once
+        if (isSinglePaymentMonth(sheet.sheetName)) {
+          const isPaid = record.week1 || record.week2 || record.week3 || record.week4;
+          if (isPaid) {
+            paidAmount += SINGLE_PAYMENT_AMOUNT;
+          } else {
+            totalAmount += SINGLE_PAYMENT_AMOUNT;
+            monthDetails.push({
+              monthName: sheet.sheetName,
+              pricePerWeek: SINGLE_PAYMENT_AMOUNT,
+              unpaidWeeks: [],
+              totalAmount: SINGLE_PAYMENT_AMOUNT,
+              isSinglePayment: true,
+              isPaid: false,
+            });
+          }
+          continue;
+        }
+
         // Determine price per week based on sheet date
         const pricePerWeek = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
 
