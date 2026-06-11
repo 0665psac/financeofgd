@@ -187,7 +187,7 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
   const [isGiftDialogOpen, setIsGiftDialogOpen] = useState(false);
   const [currentBlessingIndex, setCurrentBlessingIndex] = useState(0);
   const [progressValue, setProgressValue] = useState(100);
-  const progressIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Blessing rotation effect when dialog is open
   useEffect(() => {
