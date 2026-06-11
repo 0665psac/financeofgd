@@ -53,14 +53,6 @@ export function isNovember68OrNewer(sheetName: string): boolean {
   return monthIndex >= 11;
 }
 
-// Special single-payment month: มิถุนายน (69) — flat 120 baht once
-export const SINGLE_PAYMENT_AMOUNT = 120;
-export function isSinglePaymentMonth(sheetName: string): boolean {
-  const parsed = parseSheetName(sheetName);
-  if (!parsed) return false;
-  return parsed.month === "มิถุนายน" && parsed.year === 69;
-}
-
 // Get sort order for sheets (higher = more recent)
 export function getMonthSortOrder(sheetName: string): number {
   const parsed = parseSheetName(sheetName);
