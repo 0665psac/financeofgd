@@ -56,6 +56,8 @@ interface MonthDetail {
   pricePerWeek: number;
   unpaidWeeks: number[];
   totalAmount: number;
+  isSinglePayment?: boolean;
+  isPaid?: boolean;
 }
 
 interface SearchResult {
