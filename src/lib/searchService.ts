@@ -1,10 +1,12 @@
-import { fetchAllSheetsData, isNovember68OrNewer, SheetData } from "./googleSheets";
+import { fetchAllSheetsData, isNovember68OrNewer, isSinglePaymentMonth, SINGLE_PAYMENT_AMOUNT, SheetData } from "./googleSheets";
 
 export interface MonthDetail {
   monthName: string;
   pricePerWeek: number;
   unpaidWeeks: number[];
   totalAmount: number;
+  isSinglePayment?: boolean;
+  isPaid?: boolean;
 }
 
 export interface SearchResult {
