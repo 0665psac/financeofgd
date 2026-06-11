@@ -83,7 +83,7 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
 
         // Special single-payment month (e.g., มิถุนายน 69): flat 120 once
         if (isSinglePaymentMonth(sheet.sheetName)) {
-          const isPaid = record.week1;
+          const isPaid = record.week1 || record.week2 || record.week3 || record.week4;
           if (isPaid) {
             paidAmount += SINGLE_PAYMENT_AMOUNT;
           } else {
