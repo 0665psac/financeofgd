@@ -115,7 +115,7 @@ const PaymentCheck = () => {
           let addWeeksUnpaid = 0;
           
           if (isSingle) {
-            const isPaid = weeks.some(Boolean);
+            const isPaid = record.week1;
             if (!isPaid) {
               addAmount = SINGLE_PAYMENT_AMOUNT;
               addWeeksUnpaid = 1;
