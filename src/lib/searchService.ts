@@ -1,4 +1,4 @@
-import { fetchAllSheetsData, isNovember68OrNewer, SheetData } from "./googleSheets";
+import { fetchAllSheetsData, getPricePerWeek, SheetData } from "./googleSheets";
 
 export interface MonthDetail {
   monthName: string;
@@ -80,7 +80,7 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
         }
 
         // Determine price per week based on sheet date
-        const pricePerWeek = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
+        const pricePerWeek = getPricePerWeek(sheet.sheetName);
 
         // Find unpaid and paid weeks
         const unpaidWeeks: number[] = [];

@@ -11,7 +11,7 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { logSearchHistory } from "@/lib/searchCounter";
-import { fetchTotalAmount, fetchAllSheetsData, isNovember68OrNewer } from "@/lib/googleSheets";
+import { fetchTotalAmount, fetchAllSheetsData, getPricePerWeek } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
@@ -106,7 +106,7 @@ const PaymentCheck = () => {
       const studentMap = new Map<string, StudentPaymentStatus>();
       
       for (const sheet of sheetsData) {
-        const weeklyRate = isNovember68OrNewer(sheet.sheetName) ? 40 : 20;
+        const weeklyRate = getPricePerWeek(sheet.sheetName);
         
         for (const record of sheet.records) {
           const weeksUnpaid = [record.week1, record.week2, record.week3, record.week4].filter(w => !w).length;
