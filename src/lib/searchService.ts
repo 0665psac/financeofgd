@@ -1,4 +1,4 @@
-import { fetchAllSheetsData, isNovember68OrNewer, SheetData } from "./googleSheets";
+import { fetchAllSheetsData, getPricePerWeek, SheetData } from "./googleSheets";
 
 export interface MonthDetail {
   monthName: string;
