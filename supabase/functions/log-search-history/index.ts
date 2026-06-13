@@ -1,8 +1,10 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 
 const ALLOWED_ORIGINS = [
+  "https://financeofda.lovable.app",
   "https://financeofgd.lovable.app",
   "https://id-preview--eb2d2e7b-ebc4-4b21-86f1-91ed2d5676c1.lovable.app",
+  "https://eb2d2e7b-ebc4-4b21-86f1-91ed2d5676c1.lovableproject.com",
   "http://localhost:8080",
   "http://localhost:5173",
 ];
