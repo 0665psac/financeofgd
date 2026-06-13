@@ -53,6 +53,17 @@ export function isNovember68OrNewer(sheetName: string): boolean {
   return monthIndex >= 11;
 }
 
+// Get price per week for a given sheet
+export function getPricePerWeek(sheetName: string): number {
+  const parsed = parseSheetName(sheetName);
+  if (!parsed) return 20;
+  const { month, year } = parsed;
+  // มิถุนายน (69) เก็บสัปดาห์ละ 30 บาท
+  if (year === 69 && month === "มิถุนายน") return 30;
+  if (isNovember68OrNewer(sheetName)) return 40;
+  return 20;
+}
+
 // Get sort order for sheets (higher = more recent)
 export function getMonthSortOrder(sheetName: string): number {
   const parsed = parseSheetName(sheetName);
