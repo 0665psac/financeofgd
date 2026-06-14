@@ -273,6 +273,14 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                   จ่ายไปแล้ว {(result.paidAmount ?? 0).toLocaleString()} บาท
                 </p>
               </div>
+              <Button
+                variant="outline"
+                className="rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all"
+                onClick={handleCopy}
+              >
+                {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                คัดลอกข้อมูล
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -344,6 +352,14 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
               ส่งสลิป
             </Button>
           )}
+          <Button
+            variant="outline"
+            className="mt-3 w-full rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all h-11"
+            onClick={handleCopy}
+          >
+            {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+            คัดลอกข้อมูล
+          </Button>
         </div>
 
         {/* Monthly Details - Collapsible */}
