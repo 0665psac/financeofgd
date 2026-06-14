@@ -1,9 +1,10 @@
-import { Gift, AlertCircle, XCircle, ExternalLink, ChevronDown } from "lucide-react";
+import { Gift, AlertCircle, XCircle, ExternalLink, ChevronDown, Copy, Check } from "lucide-react";
 import GiftBox3D from "@/assets/gift-box-3d.png";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
 import { useEffect, useState, useRef } from "react";
 import confetti from "canvas-confetti";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
@@ -131,6 +132,29 @@ interface ResultCardProps {
 }
 
 const ResultCard = ({ result, studentId }: ResultCardProps) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!result.found) return;
+    const text = `ชื่อ: ${result.studentName}\nรหัสนิสิต: ${studentId}\nยอดค้างชำระทั้งหมด: ${result.totalAmount?.toLocaleString() ?? 0} บาท`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast({
+        title: "คัดลอกสำเร็จ",
+        description: "คัดลอกข้อมูลไปยังคลิปบอร์ดแล้ว",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "คัดลอกไม่สำเร็จ",
+        description: "กรุณาลองอีกครั้ง",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Case A: Not found
   if (!result.found) {
     return (
@@ -249,6 +273,14 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                   จ่ายไปแล้ว {(result.paidAmount ?? 0).toLocaleString()} บาท
                 </p>
               </div>
+              <Button
+                variant="outline"
+                className="rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all"
+                onClick={handleCopy}
+              >
+                {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                คัดลอกข้อมูล
+              </Button>
             </div>
           </CardContent>
         </Card>
@@ -320,6 +352,14 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
               ส่งสลิป
             </Button>
           )}
+          <Button
+            variant="outline"
+            className="mt-3 w-full rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all h-11"
+            onClick={handleCopy}
+          >
+            {copied ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+            คัดลอกข้อมูล
+          </Button>
         </div>
 
         {/* Monthly Details - Collapsible */}
