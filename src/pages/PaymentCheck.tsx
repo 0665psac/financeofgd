@@ -434,6 +434,15 @@ const PaymentCheck = () => {
                         <p className="text-xs text-muted-foreground">จ่ายครบแล้ว</p>
                       </div>
                     </div>
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all h-10"
+                      onClick={handleCopyAll}
+                      disabled={isStudentsLoading || allStudents.length === 0}
+                    >
+                      {copiedAll ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                      คัดลอกรายชื่อและยอดค้างทั้งหมด
+                    </Button>
                   </div>
                   
                   <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดค้างมากที่สุด</p>
