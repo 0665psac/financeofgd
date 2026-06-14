@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2 } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2, Copy, Check } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -246,6 +246,38 @@ const PaymentCheck = () => {
     });
   };
 
+  const [copiedAll, setCopiedAll] = useState(false);
+
+  const handleCopyAll = async () => {
+    if (allStudents.length === 0) return;
+    const totalOutstanding = allStudents.reduce((sum, s) => sum + s.totalAmount, 0);
+    const paidCount = allStudents.filter(s => s.isPaidAll).length;
+    const unpaidCount = allStudents.filter(s => !s.isPaidAll).length;
+
+    const lines = allStudents.map((s, i) => {
+      const status = s.isPaidAll ? "✓ จ่ายครบ" : `${s.totalAmount.toLocaleString()} บาท`;
+      return `${i + 1}. ${s.studentName} (${s.studentId}) - ${status}`;
+    });
+
+    const text = `สถานะการชำระเงินทั้งหมด\nยอดค้างรวม: ${totalOutstanding.toLocaleString()} บาท\nยังค้างชำระ: ${unpaidCount} คน\nจ่ายครบแล้ว: ${paidCount} คน\n\n${lines.join("\n")}`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedAll(true);
+      toast({
+        title: "คัดลอกสำเร็จ",
+        description: "คัดลอกรายชื่อและยอดค้างทั้งหมดแล้ว",
+      });
+      setTimeout(() => setCopiedAll(false), 2000);
+    } catch {
+      toast({
+        title: "คัดลอกไม่สำเร็จ",
+        description: "กรุณาลองอีกครั้ง",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen mesh-gradient-bg relative overflow-hidden">
       <Snowflakes />
@@ -402,6 +434,15 @@ const PaymentCheck = () => {
                         <p className="text-xs text-muted-foreground">จ่ายครบแล้ว</p>
                       </div>
                     </div>
+                    <Button
+                      variant="outline"
+                      className="w-full rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all h-10"
+                      onClick={handleCopyAll}
+                      disabled={isStudentsLoading || allStudents.length === 0}
+                    >
+                      {copiedAll ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                      คัดลอกรายชื่อและยอดค้างทั้งหมด
+                    </Button>
                   </div>
                   
                   <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดค้างมากที่สุด</p>
