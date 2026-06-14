@@ -246,6 +246,38 @@ const PaymentCheck = () => {
     });
   };
 
+  const [copiedAll, setCopiedAll] = useState(false);
+
+  const handleCopyAll = async () => {
+    if (allStudents.length === 0) return;
+    const totalOutstanding = allStudents.reduce((sum, s) => sum + s.totalAmount, 0);
+    const paidCount = allStudents.filter(s => s.isPaidAll).length;
+    const unpaidCount = allStudents.filter(s => !s.isPaidAll).length;
+
+    const lines = allStudents.map((s, i) => {
+      const status = s.isPaidAll ? "✓ จ่ายครบ" : `${s.totalAmount.toLocaleString()} บาท`;
+      return `${i + 1}. ${s.studentName} (${s.studentId}) - ${status}`;
+    });
+
+    const text = `สถานะการชำระเงินทั้งหมด\nยอดค้างรวม: ${totalOutstanding.toLocaleString()} บาท\nยังค้างชำระ: ${unpaidCount} คน\nจ่ายครบแล้ว: ${paidCount} คน\n\n${lines.join("\n")}`;
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedAll(true);
+      toast({
+        title: "คัดลอกสำเร็จ",
+        description: "คัดลอกรายชื่อและยอดค้างทั้งหมดแล้ว",
+      });
+      setTimeout(() => setCopiedAll(false), 2000);
+    } catch {
+      toast({
+        title: "คัดลอกไม่สำเร็จ",
+        description: "กรุณาลองอีกครั้ง",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen mesh-gradient-bg relative overflow-hidden">
       <Snowflakes />
