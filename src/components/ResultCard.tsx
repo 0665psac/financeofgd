@@ -1,9 +1,10 @@
-import { Gift, AlertCircle, XCircle, ExternalLink, ChevronDown } from "lucide-react";
+import { Gift, AlertCircle, XCircle, ExternalLink, ChevronDown, Copy, Check } from "lucide-react";
 import GiftBox3D from "@/assets/gift-box-3d.png";
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
 import { useEffect, useState, useRef } from "react";
 import confetti from "canvas-confetti";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
