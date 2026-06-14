@@ -132,6 +132,29 @@ interface ResultCardProps {
 }
 
 const ResultCard = ({ result, studentId }: ResultCardProps) => {
+  const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    if (!result.found) return;
+    const text = `ชื่อ: ${result.studentName}\nรหัสนิสิต: ${studentId}\nยอดค้างชำระทั้งหมด: ${result.totalAmount?.toLocaleString() ?? 0} บาท`;
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast({
+        title: "คัดลอกสำเร็จ",
+        description: "คัดลอกข้อมูลไปยังคลิปบอร์ดแล้ว",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "คัดลอกไม่สำเร็จ",
+        description: "กรุณาลองอีกครั้ง",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Case A: Not found
   if (!result.found) {
     return (
