@@ -311,6 +311,9 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           <p className="text-5xl font-extrabold font-kanit gradient-danger-text">
             {result.totalAmount?.toLocaleString()} บาท
           </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            จ่ายไปแล้ว {(result.paidAmount ?? 0).toLocaleString()} บาท
+          </p>
           {shouldShowSlipButton && (
             <Button
               className="mt-5 w-full rounded-full gradient-danger hover:opacity-90 transition-opacity border-0 h-12 text-base font-medium shadow-lg"
