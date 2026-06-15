@@ -4,7 +4,9 @@ export interface MonthDetail {
   monthName: string;
   pricePerWeek: number;
   unpaidWeeks: number[];
+  paidWeeks: number[];
   totalAmount: number;
+  isFullyPaid: boolean;
 }
 
 export interface SearchResult {
