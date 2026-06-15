@@ -8,7 +8,6 @@ import {
   Dialog,
   DialogContent,
 } from "./ui/dialog";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { Progress } from "./ui/progress";
 
 // Preload gift box image on module load
@@ -55,7 +54,9 @@ interface MonthDetail {
   monthName: string;
   pricePerWeek: number;
   unpaidWeeks: number[];
+  paidWeeks: number[];
   totalAmount: number;
+  isFullyPaid: boolean;
 }
 
 interface SearchResult {
@@ -67,61 +68,86 @@ interface SearchResult {
   major?: string;
 }
 
-// Monthly Details Collapsible Component
-const MonthlyDetailsCollapsible = ({ monthDetails }: { monthDetails?: MonthDetail[] }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  
+// Monthly Details Display Component (always visible)
+const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) => {
   if (!monthDetails || monthDetails.length === 0) return null;
-  
+
+  const paidMonths = monthDetails.filter(m => m.isFullyPaid);
+  const unpaidMonths = monthDetails.filter(m => !m.isFullyPaid);
+
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="w-full">
-        <div className="flex items-center justify-between py-2">
-          <p className="text-sm font-medium text-muted-foreground">รายละเอียดแต่ละเดือน</p>
-          <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-        </div>
-      </CollapsibleTrigger>
-      <CollapsibleContent>
-        <div className="space-y-3">
-          {monthDetails.map((month, index) => (
-            <div
-              key={month.monthName}
-              className="p-4 bg-muted/30 rounded-2xl animate-fade-in backdrop-blur-sm"
-              style={{ animationDelay: `${index * 100}ms` }}
-            >
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-medium text-foreground">{month.monthName}</p>
-                  <p className="text-xs text-muted-foreground">
-                    ต้องชำระ {month.pricePerWeek} บาท/สัปดาห์
+    <div className="space-y-4">
+      {/* Unpaid months */}
+      {unpaidMonths.length > 0 && (
+        <div>
+          <p className="text-sm font-medium text-muted-foreground mb-2">ยังค้างชำระ</p>
+          <div className="space-y-2">
+            {unpaidMonths.map((month, index) => (
+              <div
+                key={month.monthName}
+                className="p-4 bg-muted/30 rounded-2xl animate-fade-in backdrop-blur-sm"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <div>
+                    <p className="font-medium text-foreground">{month.monthName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {month.pricePerWeek} บาท/สัปดาห์
+                    </p>
+                  </div>
+                  <p className="font-bold font-kanit gradient-danger-text text-lg">
+                    {month.totalAmount.toLocaleString()} บาท
                   </p>
                 </div>
-                <p className="font-bold font-kanit gradient-danger-text text-lg">
-                  {month.totalAmount.toLocaleString()} บาท
-                </p>
+                <div className="flex gap-1.5 flex-wrap">
+                  {[1, 2, 3, 4].map((week) => {
+                    const isUnpaid = month.unpaidWeeks.includes(week);
+                    return (
+                      <span
+                        key={week}
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                          isUnpaid
+                            ? "gradient-danger text-white"
+                            : "gradient-success text-white"
+                        }`}
+                      >
+                        W{week} {isUnpaid ? "❌️" : "✅️"}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
-              <div className="flex gap-1.5 flex-wrap">
-                {[1, 2, 3, 4].map((week) => {
-                  const isUnpaid = month.unpaidWeeks.includes(week);
-                  return (
-                    <span
-                      key={week}
-                      className={`text-xs px-3 py-1.5 rounded-full font-medium ${
-                        isUnpaid
-                          ? "gradient-danger text-white"
-                          : "gradient-success text-white"
-                      }`}
-                    >
-                      W{week} {isUnpaid ? "❌️" : "✅️"}
-                    </span>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+      )}
+
+      {/* Paid months */}
+      {paidMonths.length > 0 && (
+        <div>
+          <p className="text-sm font-medium text-muted-foreground mb-2">จ่ายครบแล้ว</p>
+          <div className="space-y-2">
+            {paidMonths.map((month, index) => (
+              <div
+                key={month.monthName}
+                className="p-4 bg-emerald-500/5 rounded-2xl animate-fade-in backdrop-blur-sm border border-emerald-500/10"
+                style={{ animationDelay: `${(unpaidMonths.length + index) * 100}ms` }}
+              >
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="font-medium text-foreground">{month.monthName}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {month.pricePerWeek} บาท/สัปดาห์
+                    </p>
+                  </div>
+                  <span className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
 
@@ -250,6 +276,11 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
                 </p>
               </div>
             </div>
+
+            {/* Monthly details - always visible */}
+            <div className="mt-6">
+              <MonthlyDetailsList monthDetails={result.monthDetails} />
+            </div>
           </CardContent>
         </Card>
 
@@ -325,8 +356,8 @@ const ResultCard = ({ result, studentId }: ResultCardProps) => {
           )}
         </div>
 
-        {/* Monthly Details - Collapsible */}
-        <MonthlyDetailsCollapsible monthDetails={result.monthDetails} />
+        {/* Monthly Details - always visible */}
+        <MonthlyDetailsList monthDetails={result.monthDetails} />
       </CardContent>
     </Card>
   );
