@@ -96,17 +96,17 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
         // Add to paid amount
         paidAmount += paidWeeksCount * pricePerWeek;
 
-        if (unpaidWeeks.length > 0) {
-          const monthTotal = unpaidWeeks.length * pricePerWeek;
-          totalAmount += monthTotal;
+        const monthTotal = unpaidWeeks.length * pricePerWeek;
+        totalAmount += monthTotal;
 
-          monthDetails.push({
-            monthName: sheet.sheetName,
-            pricePerWeek,
-            unpaidWeeks,
-            totalAmount: monthTotal,
-          });
-        }
+        monthDetails.push({
+          monthName: sheet.sheetName,
+          pricePerWeek,
+          unpaidWeeks,
+          paidWeeks: [1, 2, 3, 4].filter(w => !unpaidWeeks.includes(w)),
+          totalAmount: monthTotal,
+          isFullyPaid: unpaidWeeks.length === 0,
+        });
       }
     }
 
