@@ -140,7 +140,12 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                       {month.pricePerWeek} บาท/สัปดาห์
                     </p>
                   </div>
-                  <span className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</span>
+                  <div className="text-right">
+                    <span className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</span>
+                    <p className="text-xs text-muted-foreground">
+                      {(month.paidWeeks.length * month.pricePerWeek).toLocaleString()} บาท
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
