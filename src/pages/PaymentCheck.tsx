@@ -64,6 +64,7 @@ interface StudentPaymentStatus {
   studentName: string;
   totalWeeksUnpaid: number;
   totalAmount: number;
+  paidAmount: number;
   isPaidAll: boolean;
 }
 
