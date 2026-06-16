@@ -64,6 +64,7 @@ interface StudentPaymentStatus {
   studentName: string;
   totalWeeksUnpaid: number;
   totalAmount: number;
+  paidAmount: number;
   isPaidAll: boolean;
 }
 
@@ -110,18 +111,23 @@ const PaymentCheck = () => {
         
         for (const record of sheet.records) {
           const weeksUnpaid = [record.week1, record.week2, record.week3, record.week4].filter(w => !w).length;
+          const weeksPaid = 4 - weeksUnpaid;
+          const paidInSheet = weeksPaid * weeklyRate;
+          const outstandingInSheet = weeksUnpaid * weeklyRate;
           
           const existing = studentMap.get(record.studentId);
           if (existing) {
             existing.totalWeeksUnpaid += weeksUnpaid;
-            existing.totalAmount += weeksUnpaid * weeklyRate;
+            existing.totalAmount += outstandingInSheet;
+            existing.paidAmount += paidInSheet;
             if (weeksUnpaid > 0) existing.isPaidAll = false;
           } else {
             studentMap.set(record.studentId, {
               studentId: record.studentId,
               studentName: record.studentName,
               totalWeeksUnpaid: weeksUnpaid,
-              totalAmount: weeksUnpaid * weeklyRate,
+              totalAmount: outstandingInSheet,
+              paidAmount: paidInSheet,
               isPaidAll: weeksUnpaid === 0,
             });
           }
@@ -255,7 +261,7 @@ const PaymentCheck = () => {
     const unpaidCount = allStudents.filter(s => !s.isPaidAll).length;
 
     const lines = allStudents.map((s, i) => {
-      const status = s.isPaidAll ? "✓ จ่ายครบ" : `${s.totalAmount.toLocaleString()} บาท`;
+      const status = s.isPaidAll ? `✓ จ่ายครบ (${s.paidAmount.toLocaleString()} บาท)` : `${s.totalAmount.toLocaleString()} บาท`;
       return `${i + 1}. ${s.studentName} (${s.studentId}) - ${status}`;
     });
 
@@ -435,12 +441,12 @@ const PaymentCheck = () => {
                       </div>
                     </div>
                     <Button
-                      variant="outline"
-                      className="w-full rounded-full border-primary/30 hover:bg-primary/10 hover:text-primary transition-all h-10"
+                      variant="ghost"
+                      className="w-full rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all h-9 text-sm"
                       onClick={handleCopyAll}
                       disabled={isStudentsLoading || allStudents.length === 0}
                     >
-                      {copiedAll ? <Check className="w-4 h-4 mr-2" /> : <Copy className="w-4 h-4 mr-2" />}
+                      {copiedAll ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
                       คัดลอกรายชื่อและยอดค้างทั้งหมด
                     </Button>
                   </div>
@@ -471,7 +477,10 @@ const PaymentCheck = () => {
                           </div>
                           <div className="text-right">
                             {student.isPaidAll ? (
-                              <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
+                              <>
+                                <p className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</p>
+                                <p className="text-xs text-emerald-500/70">{student.paidAmount.toLocaleString()} บาท</p>
+                              </>
                             ) : (
                               <>
                                 <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
