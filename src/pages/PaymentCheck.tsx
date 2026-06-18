@@ -296,7 +296,7 @@ const PaymentCheck = () => {
               ระบบตรวจสอบยอดค้างชำระ
             </h1>
             <p className="text-sm text-muted-foreground">
-              ค่าสาขาเด็กกราฟิกและผลิตภัณฑ์
+              ค่าสาขากราฟิกและผลิตภัณฑ์
             </p>
           </div>
         </header>
