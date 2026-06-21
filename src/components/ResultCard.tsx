@@ -47,12 +47,66 @@ const HIDDEN_SLIP_STUDENT_IDS = [
   "6810610243",
 ];
 
+// Fee Item Card (for "ค่า..." sheets)
+const FeeItemCard = ({ item, index, paid }: { item: MonthDetail; index: number; paid: boolean }) => {
+  const required = item.feeRequired ?? 0;
+  const feePaid = item.feePaid ?? 0;
+  const outstanding = Math.max(required - feePaid, 0);
+
+  return (
+    <div
+      className={`p-4 rounded-2xl animate-fade-in backdrop-blur-sm ${
+        paid
+          ? "bg-emerald-500/5 border border-emerald-500/10"
+          : "bg-muted/30"
+      }`}
+      style={{ animationDelay: `${index * 100}ms` }}
+    >
+      <div className="flex justify-between items-start mb-3">
+        <p className="font-medium text-foreground">{item.monthName}</p>
+        {paid ? (
+          <span className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</span>
+        ) : (
+          <p className="font-bold font-kanit gradient-danger-text text-lg">
+            {outstanding.toLocaleString()} บาท
+          </p>
+        )}
+      </div>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        <div className="p-2 rounded-xl bg-background/40">
+          <p className="text-[10px] text-muted-foreground">ต้องชำระ</p>
+          <p className="text-sm font-semibold font-kanit text-foreground">
+            {required.toLocaleString()}
+          </p>
+        </div>
+        <div className="p-2 rounded-xl bg-background/40">
+          <p className="text-[10px] text-muted-foreground">จ่ายแล้ว</p>
+          <p className="text-sm font-semibold font-kanit text-emerald-500">
+            {feePaid.toLocaleString()}
+          </p>
+        </div>
+        <div className="p-2 rounded-xl bg-background/40">
+          <p className="text-[10px] text-muted-foreground">คงค้าง</p>
+          <p className={`text-sm font-semibold font-kanit ${outstanding > 0 ? "text-rose-500" : "text-muted-foreground"}`}>
+            {outstanding.toLocaleString()}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // Monthly Details Display Component (always visible)
 const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) => {
   if (!monthDetails || monthDetails.length === 0) return null;
 
-  const paidMonths = monthDetails.filter(m => m.isFullyPaid);
-  const unpaidMonths = monthDetails.filter(m => !m.isFullyPaid);
+  const monthlyItems = monthDetails.filter(m => !m.isFeeSheet);
+  const feeItems = monthDetails.filter(m => m.isFeeSheet);
+
+  const paidMonths = monthlyItems.filter(m => m.isFullyPaid);
+  const unpaidMonths = monthlyItems.filter(m => !m.isFullyPaid);
+  const unpaidFees = feeItems.filter(m => !m.isFullyPaid);
+  const paidFees = feeItems.filter(m => m.isFullyPaid);
 
   return (
     <div className="space-y-4">
@@ -71,42 +125,30 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                   <div>
                     <p className="font-medium text-foreground">{month.monthName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {month.isFeeSheet
-                        ? `ต้องชำระ ${(month.feeRequired ?? 0).toLocaleString()} บาท`
-                        : `${month.pricePerWeek} บาท/สัปดาห์`}
+                      {month.pricePerWeek} บาท/สัปดาห์
                     </p>
                   </div>
                   <p className="font-bold font-kanit gradient-danger-text text-lg">
                     {month.totalAmount.toLocaleString()} บาท
                   </p>
                 </div>
-                {month.isFeeSheet ? (
-                  <div className="text-xs text-muted-foreground">
-                    จ่ายไปแล้ว{" "}
-                    <span className="font-semibold text-emerald-500">
-                      {(month.feePaid ?? 0).toLocaleString()} บาท
-                    </span>
-                    {" "}จาก {(month.feeRequired ?? 0).toLocaleString()} บาท
-                  </div>
-                ) : (
-                  <div className="flex gap-1.5 flex-wrap">
-                    {[1, 2, 3, 4].map((week) => {
-                      const isUnpaid = month.unpaidWeeks.includes(week);
-                      return (
-                        <span
-                          key={week}
-                          className={`text-xs px-3 py-1.5 rounded-full font-medium ${
-                            isUnpaid
-                              ? "gradient-danger text-white"
-                              : "gradient-success text-white"
-                          }`}
-                        >
-                          W{week} {isUnpaid ? "❌️" : "✅️"}
-                        </span>
-                      );
-                    })}
-                  </div>
-                )}
+                <div className="flex gap-1.5 flex-wrap">
+                  {[1, 2, 3, 4].map((week) => {
+                    const isUnpaid = month.unpaidWeeks.includes(week);
+                    return (
+                      <span
+                        key={week}
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                          isUnpaid
+                            ? "gradient-danger text-white"
+                            : "gradient-success text-white"
+                        }`}
+                      >
+                        W{week} {isUnpaid ? "❌️" : "✅️"}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
             ))}
           </div>
@@ -128,23 +170,52 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                   <div>
                     <p className="font-medium text-foreground">{month.monthName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {month.isFeeSheet
-                        ? `ต้องชำระ ${(month.feeRequired ?? 0).toLocaleString()} บาท`
-                        : `${month.pricePerWeek} บาท/สัปดาห์`}
+                      {month.pricePerWeek} บาท/สัปดาห์
                     </p>
                   </div>
                   <div className="text-right">
                     <span className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</span>
                     <p className="text-xs text-muted-foreground">
-                      {month.isFeeSheet
-                        ? `${(month.feePaid ?? 0).toLocaleString()} บาท`
-                        : `${(month.paidWeeks.length * month.pricePerWeek).toLocaleString()} บาท`}
+                      {(month.paidWeeks.length * month.pricePerWeek).toLocaleString()} บาท
                     </p>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Fee sheets section */}
+      {feeItems.length > 0 && (
+        <div className="space-y-4 pt-2">
+          <div className="flex items-center gap-2">
+            <div className="h-px flex-1 bg-border" />
+            <p className="text-xs font-medium text-muted-foreground">รายการค่าใช้จ่ายอื่นๆ</p>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+
+          {unpaidFees.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-2">ยังค้างชำระ</p>
+              <div className="space-y-2">
+                {unpaidFees.map((item, index) => (
+                  <FeeItemCard key={item.monthName} item={item} index={index} paid={false} />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {paidFees.length > 0 && (
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-2">จ่ายครบแล้ว</p>
+              <div className="space-y-2">
+                {paidFees.map((item, index) => (
+                  <FeeItemCard key={item.monthName} item={item} index={index} paid={true} />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
