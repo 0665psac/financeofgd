@@ -70,7 +70,7 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
   }
   
   try {
-    const allSheets = await getSheetData();
+    const { months: allSheets, fees: allFees } = await getAllData();
     
     let studentName: string | undefined;
     const monthDetails: MonthDetail[] = [];
@@ -89,10 +89,8 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
           studentName = record.studentName;
         }
 
-        // Determine price per week based on sheet date
         const pricePerWeek = getPricePerWeek(sheet.sheetName);
 
-        // Find unpaid and paid weeks
         const unpaidWeeks: number[] = [];
         let paidWeeksCount = 0;
         
@@ -101,7 +99,6 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
         if (!record.week3) unpaidWeeks.push(3); else paidWeeksCount++;
         if (!record.week4) unpaidWeeks.push(4); else paidWeeksCount++;
 
-        // Add to paid amount
         paidAmount += paidWeeksCount * pricePerWeek;
 
         const monthTotal = unpaidWeeks.length * pricePerWeek;
@@ -118,9 +115,38 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
       }
     }
 
+    // Fee sheets (e.g., ค่าเสื้อช็อป, ค่าพานไหว้ครู)
+    for (const fee of allFees) {
+      const record = fee.records.find((r) => r.studentId === trimmedId);
+      if (!record) continue;
+
+      foundInAnySheet = true;
+      if (!studentName) studentName = record.studentName;
+
+      const required = fee.requiredAmount;
+      const paid = record.isFullyPaid ? required : record.paidAmount;
+      const outstanding = record.isFullyPaid ? 0 : Math.max(0, required - record.paidAmount);
+
+      paidAmount += paid;
+      totalAmount += outstanding;
+
+      monthDetails.push({
+        monthName: fee.sheetName,
+        pricePerWeek: 0,
+        unpaidWeeks: [],
+        paidWeeks: [],
+        totalAmount: outstanding,
+        isFullyPaid: outstanding === 0,
+        isFeeSheet: true,
+        feeRequired: required,
+        feePaid: paid,
+      });
+    }
+
     if (!foundInAnySheet) {
       return { found: false };
     }
+
 
     return {
       found: true,
