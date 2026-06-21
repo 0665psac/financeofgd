@@ -88,15 +88,94 @@ async function callSheetsProxy(action: string, sheetName?: string, range?: strin
   return data;
 }
 
-// Fetch all sheet names from the spreadsheet
-async function fetchSheetNames(): Promise<string[]> {
+// Fetch all sheet names (raw, unfiltered)
+async function fetchAllSheetNamesRaw(): Promise<string[]> {
   const data = await callSheetsProxy("fetchSheetNames");
-  
-  const sheetNames: string[] = data.sheets
-    .map((sheet: { properties: { title: string } }) => sheet.properties.title)
-    .filter((name: string) => SHEET_NAME_PATTERN.test(name));
-  
-  return sheetNames;
+  return data.sheets.map((sheet: { properties: { title: string } }) => sheet.properties.title);
+}
+
+// Fetch month sheet names (matching "เดือน (ปี)" pattern)
+async function fetchSheetNames(): Promise<string[]> {
+  const names = await fetchAllSheetNamesRaw();
+  return names.filter((name: string) => SHEET_NAME_PATTERN.test(name));
+}
+
+// Fetch fee sheet names (starting with "ค่า" but not matching month pattern)
+async function fetchFeeSheetNames(): Promise<string[]> {
+  const names = await fetchAllSheetNamesRaw();
+  return names.filter((name: string) => name.startsWith("ค่า") && !SHEET_NAME_PATTERN.test(name));
+}
+
+// ============================================================
+// Fee Sheet Support (e.g., "ค่าเสื้อช็อป", "ค่าพานไหว้ครู")
+// Column B = ชื่อ, C = รหัสนิสิต (>9 digits = real row),
+// D = TRUE/FALSE (paid in full), E = partial paid amount (E1 = required total)
+// ============================================================
+
+export interface FeeSheetRecord {
+  studentName: string;
+  studentId: string;
+  isFullyPaid: boolean;
+  paidAmount: number;
+}
+
+export interface FeeSheetData {
+  sheetName: string;
+  requiredAmount: number;
+  records: FeeSheetRecord[];
+}
+
+async function fetchFeeSheetData(sheetName: string): Promise<FeeSheetData> {
+  const data = await callSheetsProxy("fetchRange", undefined, `'${sheetName}'!B1:E1000`);
+  const rows: string[][] = data.values || [];
+
+  const parseNum = (v: string | undefined): number => {
+    if (!v) return 0;
+    const n = parseFloat(v.toString().replace(/,/g, ""));
+    return isNaN(n) ? 0 : n;
+  };
+
+  const requiredAmount = parseNum(rows[0]?.[3]);
+  const records: FeeSheetRecord[] = [];
+
+  for (let i = 0; i < rows.length; i++) {
+    const row = rows[i];
+    if (!row || row.length < 3) continue;
+
+    const studentName = (row[0] || "").trim();
+    const studentIdRaw = (row[1] || "").trim();
+    const studentId = studentIdRaw.replace(/\D/g, "");
+
+    // Trigger: only rows where Column C is numeric with more than 9 digits
+    if (studentId.length <= 9) continue;
+    if (!studentName) continue;
+
+    const dVal = (row[2] || "").toString().trim().toUpperCase();
+    const isFullyPaid = dVal === "TRUE";
+    const eRaw = (row[3] || "").toString().trim();
+    const ePartial = eRaw ? parseNum(eRaw) : 0;
+    const paidAmount = isFullyPaid ? requiredAmount : ePartial;
+
+    records.push({ studentName, studentId, isFullyPaid, paidAmount });
+  }
+
+  return { sheetName, requiredAmount, records };
+}
+
+export async function fetchAllFeeSheetsData(): Promise<FeeSheetData[]> {
+  const names = await fetchFeeSheetNames();
+  const result: FeeSheetData[] = [];
+  for (const name of names) {
+    try {
+      const data = await fetchFeeSheetData(name);
+      result.push(data);
+    } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error(`Error fetching fee sheet "${name}":`, error);
+      }
+    }
+  }
+  return result;
 }
 
 // Fetch data from a specific sheet
