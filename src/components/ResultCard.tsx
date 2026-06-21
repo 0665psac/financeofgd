@@ -71,30 +71,42 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                   <div>
                     <p className="font-medium text-foreground">{month.monthName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {month.pricePerWeek} บาท/สัปดาห์
+                      {month.isFeeSheet
+                        ? `ต้องชำระ ${(month.feeRequired ?? 0).toLocaleString()} บาท`
+                        : `${month.pricePerWeek} บาท/สัปดาห์`}
                     </p>
                   </div>
                   <p className="font-bold font-kanit gradient-danger-text text-lg">
                     {month.totalAmount.toLocaleString()} บาท
                   </p>
                 </div>
-                <div className="flex gap-1.5 flex-wrap">
-                  {[1, 2, 3, 4].map((week) => {
-                    const isUnpaid = month.unpaidWeeks.includes(week);
-                    return (
-                      <span
-                        key={week}
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
-                          isUnpaid
-                            ? "gradient-danger text-white"
-                            : "gradient-success text-white"
-                        }`}
-                      >
-                        W{week} {isUnpaid ? "❌️" : "✅️"}
-                      </span>
-                    );
-                  })}
-                </div>
+                {month.isFeeSheet ? (
+                  <div className="text-xs text-muted-foreground">
+                    จ่ายไปแล้ว{" "}
+                    <span className="font-semibold text-emerald-500">
+                      {(month.feePaid ?? 0).toLocaleString()} บาท
+                    </span>
+                    {" "}จาก {(month.feeRequired ?? 0).toLocaleString()} บาท
+                  </div>
+                ) : (
+                  <div className="flex gap-1.5 flex-wrap">
+                    {[1, 2, 3, 4].map((week) => {
+                      const isUnpaid = month.unpaidWeeks.includes(week);
+                      return (
+                        <span
+                          key={week}
+                          className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                            isUnpaid
+                              ? "gradient-danger text-white"
+                              : "gradient-success text-white"
+                          }`}
+                        >
+                          W{week} {isUnpaid ? "❌️" : "✅️"}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -116,13 +128,17 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                   <div>
                     <p className="font-medium text-foreground">{month.monthName}</p>
                     <p className="text-xs text-muted-foreground">
-                      {month.pricePerWeek} บาท/สัปดาห์
+                      {month.isFeeSheet
+                        ? `ต้องชำระ ${(month.feeRequired ?? 0).toLocaleString()} บาท`
+                        : `${month.pricePerWeek} บาท/สัปดาห์`}
                     </p>
                   </div>
                   <div className="text-right">
                     <span className="text-sm font-bold text-emerald-500">✓ จ่ายครบ</span>
                     <p className="text-xs text-muted-foreground">
-                      {(month.paidWeeks.length * month.pricePerWeek).toLocaleString()} บาท
+                      {month.isFeeSheet
+                        ? `${(month.feePaid ?? 0).toLocaleString()} บาท`
+                        : `${(month.paidWeeks.length * month.pricePerWeek).toLocaleString()} บาท`}
                     </p>
                   </div>
                 </div>
