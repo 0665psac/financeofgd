@@ -1,4 +1,4 @@
-import { fetchAllSheetsData, getPricePerWeek, SheetData } from "./googleSheets";
+import { fetchAllSheetsData, fetchAllFeeSheetsData, getPricePerWeek, SheetData, FeeSheetData } from "./googleSheets";
 
 export interface MonthDetail {
   monthName: string;
@@ -7,6 +7,10 @@ export interface MonthDetail {
   paidWeeks: number[];
   totalAmount: number;
   isFullyPaid: boolean;
+  // Fee-sheet extension (e.g., ค่าเสื้อช็อป, ค่าพานไหว้ครู)
+  isFeeSheet?: boolean;
+  feeRequired?: number;
+  feePaid?: number;
 }
 
 export interface SearchResult {
@@ -20,22 +24,26 @@ export interface SearchResult {
 
 // Cache for sheet data
 let cachedData: SheetData[] | null = null;
+let cachedFeeData: FeeSheetData[] | null = null;
 let cacheTimestamp: number = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-async function getSheetData(): Promise<SheetData[]> {
+async function getAllData(): Promise<{ months: SheetData[]; fees: FeeSheetData[] }> {
   const now = Date.now();
-  
-  // Return cached data if still valid
-  if (cachedData && (now - cacheTimestamp) < CACHE_DURATION) {
-    return cachedData;
+
+  if (cachedData && cachedFeeData && (now - cacheTimestamp) < CACHE_DURATION) {
+    return { months: cachedData, fees: cachedFeeData };
   }
-  
-  // Fetch fresh data
-  cachedData = await fetchAllSheetsData();
+
+  const [months, fees] = await Promise.all([
+    fetchAllSheetsData(),
+    fetchAllFeeSheetsData(),
+  ]);
+  cachedData = months;
+  cachedFeeData = fees;
   cacheTimestamp = now;
-  
-  return cachedData;
+
+  return { months, fees };
 }
 
 // Determine major based on student ID
