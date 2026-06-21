@@ -167,5 +167,6 @@ export async function searchStudent(studentId: string): Promise<SearchResult> {
 // Force refresh cache
 export function clearCache(): void {
   cachedData = null;
+  cachedFeeData = null;
   cacheTimestamp = 0;
 }
