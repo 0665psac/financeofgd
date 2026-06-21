@@ -15,6 +15,9 @@ interface MonthDetail {
   paidWeeks: number[];
   totalAmount: number;
   isFullyPaid: boolean;
+  isFeeSheet?: boolean;
+  feeRequired?: number;
+  feePaid?: number;
 }
 
 interface SearchResult {
