@@ -72,7 +72,7 @@ const FeeItemCard = ({ item, index, paid }: { item: MonthDetail; index: number; 
           </p>
         )}
       </div>
-      <div className="grid grid-cols-3 gap-2 text-center">
+      <div className="grid grid-cols-2 gap-2 text-center">
         <div className="p-2 rounded-xl bg-background/40">
           <p className="text-[10px] text-muted-foreground">ต้องชำระ</p>
           <p className="text-sm font-semibold font-kanit text-foreground">
@@ -83,12 +83,6 @@ const FeeItemCard = ({ item, index, paid }: { item: MonthDetail; index: number; 
           <p className="text-[10px] text-muted-foreground">จ่ายแล้ว</p>
           <p className="text-sm font-semibold font-kanit text-emerald-500">
             {feePaid.toLocaleString()}
-          </p>
-        </div>
-        <div className="p-2 rounded-xl bg-background/40">
-          <p className="text-[10px] text-muted-foreground">คงค้าง</p>
-          <p className={`text-sm font-semibold font-kanit ${outstanding > 0 ? "text-rose-500" : "text-muted-foreground"}`}>
-            {outstanding.toLocaleString()}
           </p>
         </div>
       </div>
