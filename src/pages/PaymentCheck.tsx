@@ -11,7 +11,7 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { logSearchHistory } from "@/lib/searchCounter";
-import { fetchTotalAmount, fetchAllSheetsData, getPricePerWeek } from "@/lib/googleSheets";
+import { fetchTotalAmount, fetchSpentAmount, fetchAllSheetsData, getPricePerWeek } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
