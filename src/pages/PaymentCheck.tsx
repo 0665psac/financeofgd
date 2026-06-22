@@ -98,11 +98,13 @@ const PaymentCheck = () => {
     setIsTotalLoading(true);
     setIsStudentsLoading(true);
     try {
-      const [amount, sheetsData] = await Promise.all([
+      const [amount, spent, sheetsData] = await Promise.all([
         fetchTotalAmount(),
+        fetchSpentAmount(),
         fetchAllSheetsData()
       ]);
       setTotalAmount(amount);
+      setSpentAmount(spent);
       
       // Calculate total outstanding per student across all months
       const studentMap = new Map<string, StudentPaymentStatus>();
