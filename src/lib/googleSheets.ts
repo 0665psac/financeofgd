@@ -390,6 +390,25 @@ export async function fetchMonthlyStudents(sheetName: string): Promise<MonthlySt
   }
 }
 
+// Fetch spent amount from "สรุปยอดเงิน" sheet cell G12
+export async function fetchSpentAmount(): Promise<number | null> {
+  try {
+    const data = await callSheetsProxy("fetchRange", undefined, "'สรุปยอดเงิน'!G12");
+    const rows: string[][] = data.values || [];
+    
+    const rawValue = rows[0]?.[0];
+    if (!rawValue) return null;
+    
+    const numValue = parseFloat(rawValue.toString().replace(/,/g, ""));
+    return isNaN(numValue) ? null : numValue;
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error("Error fetching spent amount:", error);
+    }
+    return null;
+  }
+}
+
 // Fetch dashboard summary data from "สรุปยอดเงิน" sheet
 export async function fetchDashboardSummary(): Promise<DashboardSummary> {
   const summary: DashboardSummary = {

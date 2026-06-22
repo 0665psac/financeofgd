@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, ChevronUp, Lightbulb, Loader2, Copy, Check } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { logSearchHistory } from "@/lib/searchCounter";
-import { fetchTotalAmount, fetchAllSheetsData, getPricePerWeek } from "@/lib/googleSheets";
+import { fetchTotalAmount, fetchSpentAmount, fetchAllSheetsData, getPricePerWeek } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
@@ -77,6 +77,7 @@ const PaymentCheck = () => {
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const [spentAmount, setSpentAmount] = useState<number | null>(null);
   const [isTotalLoading, setIsTotalLoading] = useState(true);
   const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
@@ -97,11 +98,13 @@ const PaymentCheck = () => {
     setIsTotalLoading(true);
     setIsStudentsLoading(true);
     try {
-      const [amount, sheetsData] = await Promise.all([
+      const [amount, spent, sheetsData] = await Promise.all([
         fetchTotalAmount(),
+        fetchSpentAmount(),
         fetchAllSheetsData()
       ]);
       setTotalAmount(amount);
+      setSpentAmount(spent);
       
       // Calculate total outstanding per student across all months
       const studentMap = new Map<string, StudentPaymentStatus>();
@@ -302,29 +305,56 @@ const PaymentCheck = () => {
         </header>
 
         {/* Total Amount Display - Glassmorphism */}
-        <div className="mb-6 p-6 glass-card rounded-3xl">
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-8 h-8 rounded-full gradient-success flex items-center justify-center">
-              <Wallet className="w-4 h-4 text-white" />
+        <div className="mb-6 grid grid-cols-2 gap-3">
+          <div className="p-5 glass-card rounded-3xl">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-7 h-7 rounded-full gradient-success flex items-center justify-center">
+                <Wallet className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">ยอดเงินคงเหลือ</span>
             </div>
-            <span className="text-sm text-muted-foreground">ยอดเงินรวมทั้งหมด</span>
+            <div className="text-center mt-2">
+              {isTotalLoading ? (
+                <Skeleton className="h-9 w-full mx-auto rounded-2xl" />
+              ) : totalAmount !== null ? (
+                <span className="text-2xl font-extrabold font-kanit gradient-success-text">
+                  <CountUp
+                    end={totalAmount}
+                    duration={2}
+                    separator=","
+                    decimal="."
+                    suffix=""
+                  />
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
+              )}
+            </div>
           </div>
-          <div className="text-center mt-3">
-            {isTotalLoading ? (
-              <Skeleton className="h-12 w-40 mx-auto rounded-2xl" />
-            ) : totalAmount !== null ? (
-              <span className="text-4xl font-extrabold font-kanit gradient-success-text">
-                <CountUp
-                  end={totalAmount}
-                  duration={2}
-                  separator=","
-                  decimal="."
-                  suffix=" บาท"
-                />
-              </span>
-            ) : (
-              <span className="text-sm text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
-            )}
+          <div className="p-5 glass-card rounded-3xl">
+            <div className="flex items-center justify-center gap-2">
+              <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center">
+                <Receipt className="w-3.5 h-3.5 text-white" />
+              </div>
+              <span className="text-xs text-muted-foreground">ยอดเงินที่ใช้ไป</span>
+            </div>
+            <div className="text-center mt-2">
+              {isTotalLoading ? (
+                <Skeleton className="h-9 w-full mx-auto rounded-2xl" />
+              ) : spentAmount !== null ? (
+                <span className="text-2xl font-extrabold font-kanit text-amber-500">
+                  <CountUp
+                    end={spentAmount}
+                    duration={2}
+                    separator=","
+                    decimal="."
+                    suffix=""
+                  />
+                </span>
+              ) : (
+                <span className="text-xs text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
+              )}
+            </div>
           </div>
         </div>
 
