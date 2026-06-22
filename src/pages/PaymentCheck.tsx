@@ -77,6 +77,7 @@ const PaymentCheck = () => {
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
+  const [spentAmount, setSpentAmount] = useState<number | null>(null);
   const [isTotalLoading, setIsTotalLoading] = useState(true);
   const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
