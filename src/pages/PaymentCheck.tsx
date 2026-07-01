@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check, TrendingUp, TrendingDown, UserCheck } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ import SearchHistory from "@/components/SearchHistory";
 import ResultCard from "@/components/ResultCard";
 import { searchStudent, SearchResult, clearCache } from "@/lib/searchService";
 import { logSearchHistory } from "@/lib/searchCounter";
-import { fetchTotalAmount, fetchSpentAmount, fetchAllSheetsData, getPricePerWeek } from "@/lib/googleSheets";
+import { fetchTotalAmount, fetchSpentAmount, fetchIncomeAmount, fetchStudentCount, fetchAllSheetsData, fetchAllFeeSheetsData, getPricePerWeek } from "@/lib/googleSheets";
 import {
   getSearchHistory,
   addToSearchHistory,
@@ -78,6 +78,8 @@ const PaymentCheck = () => {
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [totalAmount, setTotalAmount] = useState<number | null>(null);
   const [spentAmount, setSpentAmount] = useState<number | null>(null);
+  const [incomeAmount, setIncomeAmount] = useState<number | null>(null);
+  const [studentCount, setStudentCount] = useState<number | null>(null);
   const [isTotalLoading, setIsTotalLoading] = useState(true);
   const [allStudents, setAllStudents] = useState<StudentPaymentStatus[]>([]);
   const [isStudentsLoading, setIsStudentsLoading] = useState(true);
@@ -98,15 +100,20 @@ const PaymentCheck = () => {
     setIsTotalLoading(true);
     setIsStudentsLoading(true);
     try {
-      const [amount, spent, sheetsData] = await Promise.all([
+      const [amount, spent, income, count, sheetsData, feesData] = await Promise.all([
         fetchTotalAmount(),
         fetchSpentAmount(),
-        fetchAllSheetsData()
+        fetchIncomeAmount(),
+        fetchStudentCount(),
+        fetchAllSheetsData(),
+        fetchAllFeeSheetsData(),
       ]);
       setTotalAmount(amount);
       setSpentAmount(spent);
+      setIncomeAmount(income);
+      setStudentCount(count);
       
-      // Calculate total outstanding per student across all months
+      // Calculate total outstanding per student across all months + fee sheets
       const studentMap = new Map<string, StudentPaymentStatus>();
       
       for (const sheet of sheetsData) {
@@ -132,6 +139,31 @@ const PaymentCheck = () => {
               totalAmount: outstandingInSheet,
               paidAmount: paidInSheet,
               isPaidAll: weeksUnpaid === 0,
+            });
+          }
+        }
+      }
+
+      // Include fee sheets so drawer totals match ResultCard
+      for (const fee of feesData) {
+        for (const record of fee.records) {
+          const required = fee.requiredAmount;
+          const paid = record.isFullyPaid ? required : record.paidAmount;
+          const outstanding = record.isFullyPaid ? 0 : Math.max(0, required - record.paidAmount);
+
+          const existing = studentMap.get(record.studentId);
+          if (existing) {
+            existing.totalAmount += outstanding;
+            existing.paidAmount += paid;
+            if (outstanding > 0) existing.isPaidAll = false;
+          } else {
+            studentMap.set(record.studentId, {
+              studentId: record.studentId,
+              studentName: record.studentName,
+              totalWeeksUnpaid: 0,
+              totalAmount: outstanding,
+              paidAmount: paid,
+              isPaidAll: outstanding === 0,
             });
           }
         }
@@ -258,24 +290,28 @@ const PaymentCheck = () => {
   const [copiedAll, setCopiedAll] = useState(false);
 
   const handleCopyAll = async () => {
-    if (allStudents.length === 0) return;
-    const totalOutstanding = allStudents.reduce((sum, s) => sum + s.totalAmount, 0);
-    const paidCount = allStudents.filter(s => s.isPaidAll).length;
-    const unpaidCount = allStudents.filter(s => !s.isPaidAll).length;
+    const unpaidStudents = allStudents.filter(s => !s.isPaidAll);
+    if (unpaidStudents.length === 0) {
+      toast({
+        title: "ไม่มียอดค้างชำระ",
+        description: "ทุกคนจ่ายครบแล้ว",
+      });
+      return;
+    }
+    const totalOutstanding = unpaidStudents.reduce((sum, s) => sum + s.totalAmount, 0);
 
-    const lines = allStudents.map((s, i) => {
-      const status = s.isPaidAll ? `✓ จ่ายครบ (${s.paidAmount.toLocaleString()} บาท)` : `${s.totalAmount.toLocaleString()} บาท`;
-      return `${i + 1}. ${s.studentName} (${s.studentId}) - ${status}`;
+    const lines = unpaidStudents.map((s, i) => {
+      return `${i + 1}. ${s.studentName} (${s.studentId}) - ${s.totalAmount.toLocaleString()} บาท`;
     });
 
-    const text = `สถานะการชำระเงินทั้งหมด\nยอดค้างรวม: ${totalOutstanding.toLocaleString()} บาท\nยังค้างชำระ: ${unpaidCount} คน\nจ่ายครบแล้ว: ${paidCount} คน\n\n${lines.join("\n")}`;
+    const text = `รายชื่อผู้ที่ยังค้างชำระ (${unpaidStudents.length} คน)\nยอดค้างรวม: ${totalOutstanding.toLocaleString()} บาท\n\n${lines.join("\n")}`;
 
     try {
       await navigator.clipboard.writeText(text);
       setCopiedAll(true);
       toast({
         title: "คัดลอกสำเร็จ",
-        description: "คัดลอกรายชื่อและยอดค้างทั้งหมดแล้ว",
+        description: `คัดลอกรายชื่อผู้ค้างชำระ ${unpaidStudents.length} คนแล้ว`,
       });
       setTimeout(() => setCopiedAll(false), 2000);
     } catch {
@@ -304,51 +340,27 @@ const PaymentCheck = () => {
           </div>
         </header>
 
-        {/* Total Amount Display - Glassmorphism */}
-        <div className="mb-6 grid grid-cols-2 gap-3">
+        {/* Per-Person Remaining - Glassmorphism */}
+        <div className="mb-6">
           <div className="p-5 glass-card rounded-3xl">
             <div className="flex items-center justify-center gap-2">
               <div className="w-7 h-7 rounded-full gradient-success flex items-center justify-center">
-                <Wallet className="w-3.5 h-3.5 text-white" />
+                <UserCheck className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="text-xs text-muted-foreground">ยอดเงินคงเหลือ</span>
+              <span className="text-xs text-muted-foreground">ยอดคงเหลือต่อคน</span>
             </div>
             <div className="text-center mt-2">
               {isTotalLoading ? (
-                <Skeleton className="h-9 w-full mx-auto rounded-2xl" />
-              ) : totalAmount !== null ? (
-                <span className="text-2xl font-extrabold font-kanit gradient-success-text">
+                <Skeleton className="h-10 w-40 mx-auto rounded-2xl" />
+              ) : totalAmount !== null && studentCount && studentCount > 0 ? (
+                <span className="text-3xl font-extrabold font-kanit gradient-success-text">
                   <CountUp
-                    end={totalAmount}
+                    end={totalAmount / studentCount}
                     duration={2}
                     separator=","
+                    decimals={2}
                     decimal="."
-                    suffix=""
-                  />
-                </span>
-              ) : (
-                <span className="text-xs text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
-              )}
-            </div>
-          </div>
-          <div className="p-5 glass-card rounded-3xl">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center">
-                <Receipt className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-xs text-muted-foreground">ยอดเงินที่ใช้ไป</span>
-            </div>
-            <div className="text-center mt-2">
-              {isTotalLoading ? (
-                <Skeleton className="h-9 w-full mx-auto rounded-2xl" />
-              ) : spentAmount !== null ? (
-                <span className="text-2xl font-extrabold font-kanit text-amber-500">
-                  <CountUp
-                    end={spentAmount}
-                    duration={2}
-                    separator=","
-                    decimal="."
-                    suffix=""
+                    suffix=" บาท"
                   />
                 </span>
               ) : (
@@ -357,6 +369,7 @@ const PaymentCheck = () => {
             </div>
           </div>
         </div>
+
 
         {/* Search Form - Floating Pill with Dropdown */}
         <form onSubmit={handleSubmit} className="mb-6">
@@ -454,6 +467,37 @@ const PaymentCheck = () => {
                 <CollapsibleContent className="flex-1 overflow-y-auto">
                   {/* Summary */}
                   <div className="p-4 space-y-2">
+                    {/* Income / Expense / Remaining */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="p-3 rounded-xl bg-emerald-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <TrendingUp className="w-3 h-3 text-emerald-500" />
+                          <p className="text-xs text-muted-foreground">รายรับ</p>
+                        </div>
+                        <p className="text-sm font-bold text-emerald-500">
+                          {incomeAmount !== null ? incomeAmount.toLocaleString() : "-"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-red-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <TrendingDown className="w-3 h-3 text-red-500" />
+                          <p className="text-xs text-muted-foreground">รายจ่าย</p>
+                        </div>
+                        <p className="text-sm font-bold text-red-500">
+                          {spentAmount !== null ? spentAmount.toLocaleString() : "-"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-primary/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <Wallet className="w-3 h-3 text-primary" />
+                          <p className="text-xs text-muted-foreground">คงเหลือ</p>
+                        </div>
+                        <p className="text-sm font-bold text-primary">
+                          {totalAmount !== null ? totalAmount.toLocaleString() : "-"}
+                        </p>
+                      </div>
+                    </div>
+
                     <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
                       <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
                       <span className="text-base font-bold text-amber-500">
@@ -474,12 +518,13 @@ const PaymentCheck = () => {
                       variant="ghost"
                       className="w-full rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all h-9 text-sm"
                       onClick={handleCopyAll}
-                      disabled={isStudentsLoading || allStudents.length === 0}
+                      disabled={isStudentsLoading || allStudents.filter(s => !s.isPaidAll).length === 0}
                     >
                       {copiedAll ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
-                      คัดลอกรายชื่อและยอดค้างทั้งหมด
+                      คัดลอกรายชื่อผู้ค้างชำระ
                     </Button>
                   </div>
+                  
                   
                   <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดค้างมากที่สุด</p>
                   
