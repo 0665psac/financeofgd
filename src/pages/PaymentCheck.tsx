@@ -340,51 +340,27 @@ const PaymentCheck = () => {
           </div>
         </header>
 
-        {/* Total Amount Display - Glassmorphism */}
-        <div className="mb-6 grid grid-cols-2 gap-3">
+        {/* Per-Person Remaining - Glassmorphism */}
+        <div className="mb-6">
           <div className="p-5 glass-card rounded-3xl">
             <div className="flex items-center justify-center gap-2">
               <div className="w-7 h-7 rounded-full gradient-success flex items-center justify-center">
-                <Wallet className="w-3.5 h-3.5 text-white" />
+                <UserCheck className="w-3.5 h-3.5 text-white" />
               </div>
-              <span className="text-xs text-muted-foreground">ยอดเงินคงเหลือ</span>
+              <span className="text-xs text-muted-foreground">ยอดคงเหลือต่อคน</span>
             </div>
             <div className="text-center mt-2">
               {isTotalLoading ? (
-                <Skeleton className="h-9 w-full mx-auto rounded-2xl" />
-              ) : totalAmount !== null ? (
-                <span className="text-2xl font-extrabold font-kanit gradient-success-text">
+                <Skeleton className="h-10 w-40 mx-auto rounded-2xl" />
+              ) : totalAmount !== null && studentCount && studentCount > 0 ? (
+                <span className="text-3xl font-extrabold font-kanit gradient-success-text">
                   <CountUp
-                    end={totalAmount}
+                    end={totalAmount / studentCount}
                     duration={2}
                     separator=","
+                    decimals={2}
                     decimal="."
-                    suffix=""
-                  />
-                </span>
-              ) : (
-                <span className="text-xs text-muted-foreground">ไม่สามารถโหลดข้อมูลได้</span>
-              )}
-            </div>
-          </div>
-          <div className="p-5 glass-card rounded-3xl">
-            <div className="flex items-center justify-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-amber-500 flex items-center justify-center">
-                <Receipt className="w-3.5 h-3.5 text-white" />
-              </div>
-              <span className="text-xs text-muted-foreground">ยอดเงินที่ใช้ไป</span>
-            </div>
-            <div className="text-center mt-2">
-              {isTotalLoading ? (
-                <Skeleton className="h-9 w-full mx-auto rounded-2xl" />
-              ) : spentAmount !== null ? (
-                <span className="text-2xl font-extrabold font-kanit text-amber-500">
-                  <CountUp
-                    end={spentAmount}
-                    duration={2}
-                    separator=","
-                    decimal="."
-                    suffix=""
+                    suffix=" บาท"
                   />
                 </span>
               ) : (
@@ -393,6 +369,7 @@ const PaymentCheck = () => {
             </div>
           </div>
         </div>
+
 
         {/* Search Form - Floating Pill with Dropdown */}
         <form onSubmit={handleSubmit} className="mb-6">
