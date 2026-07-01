@@ -392,18 +392,30 @@ export async function fetchMonthlyStudents(sheetName: string): Promise<MonthlySt
 
 // Fetch spent amount from "สรุปยอดเงิน" sheet cell G12
 export async function fetchSpentAmount(): Promise<number | null> {
+  return fetchSingleCellNumber("'สรุปยอดเงิน'!G12");
+}
+
+// Fetch income (รายรับ) from "สรุปยอดเงิน" sheet cell B12
+export async function fetchIncomeAmount(): Promise<number | null> {
+  return fetchSingleCellNumber("'สรุปยอดเงิน'!B12");
+}
+
+// Fetch total student count from "สรุปยอดเงิน" sheet cell O2
+export async function fetchStudentCount(): Promise<number | null> {
+  return fetchSingleCellNumber("'สรุปยอดเงิน'!O2");
+}
+
+async function fetchSingleCellNumber(range: string): Promise<number | null> {
   try {
-    const data = await callSheetsProxy("fetchRange", undefined, "'สรุปยอดเงิน'!G12");
+    const data = await callSheetsProxy("fetchRange", undefined, range);
     const rows: string[][] = data.values || [];
-    
     const rawValue = rows[0]?.[0];
     if (!rawValue) return null;
-    
     const numValue = parseFloat(rawValue.toString().replace(/,/g, ""));
     return isNaN(numValue) ? null : numValue;
   } catch (error) {
     if (import.meta.env.DEV) {
-      console.error("Error fetching spent amount:", error);
+      console.error(`Error fetching ${range}:`, error);
     }
     return null;
   }
