@@ -100,15 +100,20 @@ const PaymentCheck = () => {
     setIsTotalLoading(true);
     setIsStudentsLoading(true);
     try {
-      const [amount, spent, sheetsData] = await Promise.all([
+      const [amount, spent, income, count, sheetsData, feesData] = await Promise.all([
         fetchTotalAmount(),
         fetchSpentAmount(),
-        fetchAllSheetsData()
+        fetchIncomeAmount(),
+        fetchStudentCount(),
+        fetchAllSheetsData(),
+        fetchAllFeeSheetsData(),
       ]);
       setTotalAmount(amount);
       setSpentAmount(spent);
+      setIncomeAmount(income);
+      setStudentCount(count);
       
-      // Calculate total outstanding per student across all months
+      // Calculate total outstanding per student across all months + fee sheets
       const studentMap = new Map<string, StudentPaymentStatus>();
       
       for (const sheet of sheetsData) {
@@ -134,6 +139,31 @@ const PaymentCheck = () => {
               totalAmount: outstandingInSheet,
               paidAmount: paidInSheet,
               isPaidAll: weeksUnpaid === 0,
+            });
+          }
+        }
+      }
+
+      // Include fee sheets so drawer totals match ResultCard
+      for (const fee of feesData) {
+        for (const record of fee.records) {
+          const required = fee.requiredAmount;
+          const paid = record.isFullyPaid ? required : record.paidAmount;
+          const outstanding = record.isFullyPaid ? 0 : Math.max(0, required - record.paidAmount);
+
+          const existing = studentMap.get(record.studentId);
+          if (existing) {
+            existing.totalAmount += outstanding;
+            existing.paidAmount += paid;
+            if (outstanding > 0) existing.isPaidAll = false;
+          } else {
+            studentMap.set(record.studentId, {
+              studentId: record.studentId,
+              studentName: record.studentName,
+              totalWeeksUnpaid: 0,
+              totalAmount: outstanding,
+              paidAmount: paid,
+              isPaidAll: outstanding === 0,
             });
           }
         }
