@@ -467,6 +467,37 @@ const PaymentCheck = () => {
                 <CollapsibleContent className="flex-1 overflow-y-auto">
                   {/* Summary */}
                   <div className="p-4 space-y-2">
+                    {/* Income / Expense / Remaining */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="p-3 rounded-xl bg-emerald-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <TrendingUp className="w-3 h-3 text-emerald-500" />
+                          <p className="text-xs text-muted-foreground">รายรับ</p>
+                        </div>
+                        <p className="text-sm font-bold text-emerald-500">
+                          {incomeAmount !== null ? incomeAmount.toLocaleString() : "-"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-red-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <TrendingDown className="w-3 h-3 text-red-500" />
+                          <p className="text-xs text-muted-foreground">รายจ่าย</p>
+                        </div>
+                        <p className="text-sm font-bold text-red-500">
+                          {spentAmount !== null ? spentAmount.toLocaleString() : "-"}
+                        </p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-primary/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <Wallet className="w-3 h-3 text-primary" />
+                          <p className="text-xs text-muted-foreground">คงเหลือ</p>
+                        </div>
+                        <p className="text-sm font-bold text-primary">
+                          {totalAmount !== null ? totalAmount.toLocaleString() : "-"}
+                        </p>
+                      </div>
+                    </div>
+
                     <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
                       <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
                       <span className="text-base font-bold text-amber-500">
@@ -487,12 +518,13 @@ const PaymentCheck = () => {
                       variant="ghost"
                       className="w-full rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all h-9 text-sm"
                       onClick={handleCopyAll}
-                      disabled={isStudentsLoading || allStudents.length === 0}
+                      disabled={isStudentsLoading || allStudents.filter(s => !s.isPaidAll).length === 0}
                     >
                       {copiedAll ? <Check className="w-3.5 h-3.5 mr-1.5" /> : <Copy className="w-3.5 h-3.5 mr-1.5" />}
-                      คัดลอกรายชื่อและยอดค้างทั้งหมด
+                      คัดลอกรายชื่อผู้ค้างชำระ
                     </Button>
                   </div>
+                  
                   
                   <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดค้างมากที่สุด</p>
                   
