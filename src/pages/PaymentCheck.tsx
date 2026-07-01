@@ -290,24 +290,28 @@ const PaymentCheck = () => {
   const [copiedAll, setCopiedAll] = useState(false);
 
   const handleCopyAll = async () => {
-    if (allStudents.length === 0) return;
-    const totalOutstanding = allStudents.reduce((sum, s) => sum + s.totalAmount, 0);
-    const paidCount = allStudents.filter(s => s.isPaidAll).length;
-    const unpaidCount = allStudents.filter(s => !s.isPaidAll).length;
+    const unpaidStudents = allStudents.filter(s => !s.isPaidAll);
+    if (unpaidStudents.length === 0) {
+      toast({
+        title: "ไม่มียอดค้างชำระ",
+        description: "ทุกคนจ่ายครบแล้ว",
+      });
+      return;
+    }
+    const totalOutstanding = unpaidStudents.reduce((sum, s) => sum + s.totalAmount, 0);
 
-    const lines = allStudents.map((s, i) => {
-      const status = s.isPaidAll ? `✓ จ่ายครบ (${s.paidAmount.toLocaleString()} บาท)` : `${s.totalAmount.toLocaleString()} บาท`;
-      return `${i + 1}. ${s.studentName} (${s.studentId}) - ${status}`;
+    const lines = unpaidStudents.map((s, i) => {
+      return `${i + 1}. ${s.studentName} (${s.studentId}) - ${s.totalAmount.toLocaleString()} บาท`;
     });
 
-    const text = `สถานะการชำระเงินทั้งหมด\nยอดค้างรวม: ${totalOutstanding.toLocaleString()} บาท\nยังค้างชำระ: ${unpaidCount} คน\nจ่ายครบแล้ว: ${paidCount} คน\n\n${lines.join("\n")}`;
+    const text = `รายชื่อผู้ที่ยังค้างชำระ (${unpaidStudents.length} คน)\nยอดค้างรวม: ${totalOutstanding.toLocaleString()} บาท\n\n${lines.join("\n")}`;
 
     try {
       await navigator.clipboard.writeText(text);
       setCopiedAll(true);
       toast({
         title: "คัดลอกสำเร็จ",
-        description: "คัดลอกรายชื่อและยอดค้างทั้งหมดแล้ว",
+        description: `คัดลอกรายชื่อผู้ค้างชำระ ${unpaidStudents.length} คนแล้ว`,
       });
       setTimeout(() => setCopiedAll(false), 2000);
     } catch {
