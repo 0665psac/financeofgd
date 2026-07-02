@@ -109,7 +109,7 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-border" />
-            <p className="text-xs font-medium text-muted-foreground">รายการค่าใช้จ่ายอื่นๆ</p>
+            <p className="text-xs font-medium text-muted-foreground">เรียกเก็บด่วน</p>
             <div className="h-px flex-1 bg-border" />
           </div>
 
