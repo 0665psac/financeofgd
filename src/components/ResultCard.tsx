@@ -1,4 +1,4 @@
-import { AlertCircle, XCircle, ExternalLink } from "lucide-react";
+import { AlertCircle, XCircle, ExternalLink, Check, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
@@ -109,7 +109,7 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <div className="h-px flex-1 bg-border" />
-            <p className="text-xs font-medium text-muted-foreground">รายการค่าใช้จ่ายอื่นๆ</p>
+            <p className="text-xs font-medium text-muted-foreground">เรียกเก็บด่วน</p>
             <div className="h-px flex-1 bg-border" />
           </div>
 
@@ -174,16 +174,18 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                     return (
                       <span
                         key={week}
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium inline-flex items-center gap-1 ${
                           isUnpaid
                             ? "gradient-danger text-white"
                             : "gradient-success text-white"
                         }`}
                       >
-                        W{week} {isUnpaid ? "❌️" : "✅️"}
+                        W{week}
+                        {isUnpaid ? <X className="w-3 h-3" strokeWidth={3} /> : <Check className="w-3 h-3" strokeWidth={3} />}
                       </span>
                     );
                   })}
+
                 </div>
               </div>
             ))}
