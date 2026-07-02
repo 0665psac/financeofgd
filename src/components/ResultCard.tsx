@@ -174,16 +174,18 @@ const MonthlyDetailsList = ({ monthDetails }: { monthDetails?: MonthDetail[] }) 
                     return (
                       <span
                         key={week}
-                        className={`text-xs px-3 py-1.5 rounded-full font-medium ${
+                        className={`text-xs px-3 py-1.5 rounded-full font-medium inline-flex items-center gap-1 ${
                           isUnpaid
                             ? "gradient-danger text-white"
                             : "gradient-success text-white"
                         }`}
                       >
-                        W{week} {isUnpaid ? "❌️" : "✅️"}
+                        W{week}
+                        {isUnpaid ? <X className="w-3 h-3" strokeWidth={3} /> : <Check className="w-3 h-3" strokeWidth={3} />}
                       </span>
                     );
                   })}
+
                 </div>
               </div>
             ))}
