@@ -1,4 +1,4 @@
-import { AlertCircle, XCircle, ExternalLink } from "lucide-react";
+import { AlertCircle, XCircle, ExternalLink, Check, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader } from "./ui/card";
 import { Button } from "./ui/button";
