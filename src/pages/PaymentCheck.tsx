@@ -559,7 +559,7 @@ const PaymentCheck = () => {
                               </>
                             ) : (
                               <>
-                                <p className="text-sm font-bold text-amber-500">{student.totalAmount.toLocaleString()} บาท</p>
+                                <p className="text-sm font-bold text-red-500">{student.totalAmount.toLocaleString()} บาท</p>
                                 <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
                               </>
                             )}
