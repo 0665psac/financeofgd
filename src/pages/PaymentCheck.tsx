@@ -487,23 +487,24 @@ const PaymentCheck = () => {
                           {spentAmount !== null ? spentAmount.toLocaleString() : "-"}
                         </p>
                       </div>
-                      <div className="p-3 rounded-xl bg-primary/10 text-center">
+                      <div className="p-3 rounded-xl bg-amber-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
-                          <Wallet className="w-3 h-3 text-primary" />
+                          <Wallet className="w-3 h-3 text-amber-500" />
                           <p className="text-xs text-muted-foreground">คงเหลือ</p>
                         </div>
-                        <p className="text-sm font-bold text-primary">
+                        <p className="text-sm font-bold text-amber-500">
                           {totalAmount !== null ? totalAmount.toLocaleString() : "-"}
                         </p>
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-amber-500/10 flex items-center justify-between">
+                    <div className="p-3 rounded-xl bg-sky-500/10 flex items-center justify-between">
                       <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
-                      <span className="text-base font-bold text-amber-500">
+                      <span className="text-base font-bold text-sky-500">
                         {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
                       </span>
                     </div>
+
                     <div className="flex gap-2">
                       <div className="flex-1 p-3 rounded-xl bg-red-500/10 text-center">
                         <p className="text-lg font-bold text-red-500">{allStudents.filter(s => !s.isPaidAll).length}</p>
