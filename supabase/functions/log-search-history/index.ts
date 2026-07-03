@@ -170,10 +170,8 @@ serve(async (req: Request): Promise<Response> => {
     const token = await getAccessToken();
     const timestamp = formatBangkokTimestamp(new Date());
 
-
-
-
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:C:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
+
     const appendRes = await fetch(url, {
       method: "POST",
       headers: {
