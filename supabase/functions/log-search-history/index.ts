@@ -168,16 +168,8 @@ serve(async (req: Request): Promise<Response> => {
     if (!sheetId) throw new Error("Missing SEARCH_HISTORY_SHEET_ID");
 
     const token = await getAccessToken();
-    const timestamp = new Date().toLocaleString("en-GB", {
-      timeZone: "Asia/Bangkok",
-      day: "numeric",
-      month: "numeric",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-      hour12: false,
-    });
+    const timestamp = formatBangkokTimestamp(new Date());
+
 
 
 
