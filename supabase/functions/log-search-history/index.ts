@@ -150,7 +150,17 @@ serve(async (req: Request): Promise<Response> => {
     if (!sheetId) throw new Error("Missing SEARCH_HISTORY_SHEET_ID");
 
     const token = await getAccessToken();
-    const timestamp = new Date().toISOString();
+    const timestamp = new Date().toLocaleString("th-TH", {
+      timeZone: "Asia/Bangkok",
+      day: "numeric",
+      month: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+    });
+
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/A:C:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`;
     const appendRes = await fetch(url, {
