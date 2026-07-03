@@ -117,6 +117,24 @@ interface RequestBody {
   studentName: string;
 }
 
+function formatBangkokTimestamp(date: Date): string {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Bangkok",
+    day: "numeric",
+    month: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const value = (type: string) => parts.find((p) => p.type === type)?.value || "";
+  const day = value("day").replace(/^0/, "");
+  const month = value("month").replace(/^0/, "");
+  return `${day}/${month}/${value("year")}, ${value("hour")}:${value("minute")}:${value("second")}`;
+}
+
+
 serve(async (req: Request): Promise<Response> => {
   const corsHeaders = getCorsHeaders(req);
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
