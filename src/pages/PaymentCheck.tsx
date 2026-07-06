@@ -508,7 +508,7 @@ const PaymentCheck = () => {
                         <p className="text-sm font-bold text-emerald-500">
                           {allStudents.filter(s => s.isPaidAll).length}
                         </p>
-                        <p className="text-[10px] text-emerald-500/70">คน</p>
+                        <p className="text-[10px] text-muted-foreground">คน</p>
                       </div>
                       <div className="p-3 rounded-xl bg-red-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
@@ -518,7 +518,7 @@ const PaymentCheck = () => {
                         <p className="text-sm font-bold text-red-500">
                           {allStudents.filter(s => !s.isPaidAll).length}
                         </p>
-                        <p className="text-[10px] text-red-500/70">คน</p>
+                        <p className="text-[10px] text-muted-foreground">คน</p>
                       </div>
                       <div className="p-3 rounded-xl bg-amber-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
@@ -528,7 +528,7 @@ const PaymentCheck = () => {
                         <p className="text-sm font-bold text-amber-500">
                           {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-amber-500/70">บาท</p>
+                        <p className="text-[10px] text-muted-foreground">บาท</p>
                       </div>
                     </div>
 
