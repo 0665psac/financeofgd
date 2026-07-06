@@ -1,5 +1,5 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
-import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check, TrendingUp, TrendingDown, UserCheck } from "lucide-react";
+import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check, TrendingUp, TrendingDown, UserCheck, AlertCircle } from "lucide-react";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -467,7 +467,7 @@ const PaymentCheck = () => {
                 <CollapsibleContent className="flex-1 overflow-y-auto">
                   {/* Summary */}
                   <div className="p-4 space-y-2">
-                    {/* Income / Expense / Remaining */}
+                    {/* Row 1: Income / Expense / Remaining */}
                     <div className="grid grid-cols-3 gap-2">
                       <div className="p-3 rounded-xl bg-emerald-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
@@ -498,23 +498,40 @@ const PaymentCheck = () => {
                       </div>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-sky-500/10 flex items-center justify-between">
-                      <span className="text-sm text-foreground">ยอดค้างรวมทั้งหมด</span>
-                      <span className="text-base font-bold text-sky-500">
-                        {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()} บาท
-                      </span>
+                    {/* Row 2: Paid / Unpaid / Outstanding */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="p-3 rounded-xl bg-emerald-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <UserCheck className="w-3 h-3 text-emerald-500" />
+                          <p className="text-xs text-muted-foreground">จ่ายครบ</p>
+                        </div>
+                        <p className="text-sm font-bold text-emerald-500">
+                          {allStudents.filter(s => s.isPaidAll).length}
+                        </p>
+                        <p className="text-[10px] text-emerald-500/70">คน</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-red-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <AlertCircle className="w-3 h-3 text-red-500" />
+                          <p className="text-xs text-muted-foreground">ยังค้าง</p>
+                        </div>
+                        <p className="text-sm font-bold text-red-500">
+                          {allStudents.filter(s => !s.isPaidAll).length}
+                        </p>
+                        <p className="text-[10px] text-red-500/70">คน</p>
+                      </div>
+                      <div className="p-3 rounded-xl bg-amber-500/10 text-center">
+                        <div className="flex items-center justify-center gap-1 mb-1">
+                          <Receipt className="w-3 h-3 text-amber-500" />
+                          <p className="text-xs text-muted-foreground">ยอดค้าง</p>
+                        </div>
+                        <p className="text-sm font-bold text-amber-500">
+                          {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()}
+                        </p>
+                        <p className="text-[10px] text-amber-500/70">บาท</p>
+                      </div>
                     </div>
 
-                    <div className="flex gap-2">
-                      <div className="flex-1 p-3 rounded-xl bg-red-500/10 text-center">
-                        <p className="text-lg font-bold text-red-500">{allStudents.filter(s => !s.isPaidAll).length}</p>
-                        <p className="text-xs text-muted-foreground">ยังค้างชำระ</p>
-                      </div>
-                      <div className="flex-1 p-3 rounded-xl bg-emerald-500/10 text-center">
-                        <p className="text-lg font-bold text-emerald-500">{allStudents.filter(s => s.isPaidAll).length}</p>
-                        <p className="text-xs text-muted-foreground">จ่ายครบแล้ว</p>
-                      </div>
-                    </div>
                     <Button
                       variant="ghost"
                       className="w-full rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all h-9 text-sm"
