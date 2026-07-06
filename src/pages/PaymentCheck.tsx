@@ -169,9 +169,13 @@ const PaymentCheck = () => {
         }
       }
       
-      // Sort by total amount descending (outstanding first, then paid)
+      // Sort: unpaid first by outstanding descending, then paid by paid amount descending
       const sortedStudents = Array.from(studentMap.values())
-        .sort((a, b) => b.totalAmount - a.totalAmount);
+        .sort((a, b) => {
+          if (!a.isPaidAll && !b.isPaidAll) return b.totalAmount - a.totalAmount;
+          if (a.isPaidAll && b.isPaidAll) return b.paidAmount - a.paidAmount;
+          return a.isPaidAll ? 1 : -1;
+        });
       
       setAllStudents(sortedStudents);
     } catch (error) {
