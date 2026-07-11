@@ -507,22 +507,20 @@ const PaymentCheck = () => {
                       <div className="p-3 rounded-xl bg-emerald-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
                           <UserCheck className="w-3 h-3 text-emerald-500" />
-                          <p className="text-xs text-muted-foreground">จ่ายครบ</p>
+                          <p className="text-xs text-muted-foreground">จ่ายครบ (คน)</p>
                         </div>
                         <p className="text-sm font-bold text-emerald-500">
                           {allStudents.filter(s => s.isPaidAll).length}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">คน</p>
                       </div>
                       <div className="p-3 rounded-xl bg-red-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
                           <AlertCircle className="w-3 h-3 text-red-500" />
-                          <p className="text-xs text-muted-foreground">ยังค้าง</p>
+                          <p className="text-xs text-muted-foreground">ยังค้าง (คน)</p>
                         </div>
                         <p className="text-sm font-bold text-red-500">
                           {allStudents.filter(s => !s.isPaidAll).length}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">คน</p>
                       </div>
                       <div className="p-3 rounded-xl bg-amber-500/10 text-center">
                         <div className="flex items-center justify-center gap-1 mb-1">
@@ -532,7 +530,6 @@ const PaymentCheck = () => {
                         <p className="text-sm font-bold text-amber-500">
                           {allStudents.reduce((sum, s) => sum + s.totalAmount, 0).toLocaleString()}
                         </p>
-                        <p className="text-[10px] text-muted-foreground">บาท</p>
                       </div>
                     </div>
 
