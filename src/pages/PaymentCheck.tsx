@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
 import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check, TrendingUp, TrendingDown, UserCheck, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
