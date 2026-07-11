@@ -1,5 +1,6 @@
 import { useState, useEffect, FormEvent, useRef } from "react";
 import { Search, RefreshCw, Wallet, Users, Receipt, ChevronUp, Lightbulb, Loader2, Copy, Check, TrendingUp, TrendingDown, UserCheck, AlertCircle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import CountUp from "react-countup";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
@@ -569,18 +570,30 @@ const PaymentCheck = () => {
                               <p className="text-xs text-muted-foreground">{student.studentId}</p>
                             </div>
                           </div>
-                          <div className="text-right">
+                          <div className="text-right flex flex-col items-end gap-1">
                             {student.isPaidAll ? (
                               <>
-                                <p className="text-sm font-bold text-emerald-500">
-                                  {student.paidAmount <= 60 ? "ลาออกแล้ว" : "✓ จ่ายครบ"}
-                                </p>
+                                <Badge
+                                  variant="outline"
+                                  className={`text-[10px] px-1.5 py-0.5 rounded-md ${
+                                    student.paidAmount <= 60
+                                      ? "bg-muted text-muted-foreground border-border"
+                                      : "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                                  }`}
+                                >
+                                  {student.paidAmount <= 60 ? "ลาออกแล้ว" : "จ่ายครบ"}
+                                </Badge>
                                 <p className="text-xs text-emerald-500/70">{student.paidAmount.toLocaleString()} บาท</p>
                               </>
                             ) : (
                               <>
+                                <Badge
+                                  variant="outline"
+                                  className="text-[10px] px-1.5 py-0.5 rounded-md bg-red-500/10 text-red-500 border-red-500/20"
+                                >
+                                  ยังค้าง
+                                </Badge>
                                 <p className="text-sm font-bold text-red-500">{student.totalAmount.toLocaleString()} บาท</p>
-                                <p className="text-xs text-muted-foreground">{student.totalWeeksUnpaid} สัปดาห์</p>
                               </>
                             )}
                           </div>
