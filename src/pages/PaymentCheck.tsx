@@ -546,7 +546,7 @@ const PaymentCheck = () => {
                   </div>
                   
                   
-                  <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดค้างมากที่สุด</p>
+                  <p className="text-xs text-muted-foreground px-4 mb-3">เรียงจากยอดเยอะที่สุด</p>
                   
                   {isStudentsLoading ? (
                     <div className="space-y-2 px-4 pb-4">
